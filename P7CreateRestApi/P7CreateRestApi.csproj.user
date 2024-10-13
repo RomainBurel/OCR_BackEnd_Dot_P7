@@ -5,5 +5,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <ActiveDebugProfile>P7CreateRestApi</ActiveDebugProfile>
+    <_SelectedScaffolderID>MvcControllerWithContextScaffolder</_SelectedScaffolderID>
+    <_SelectedScaffolderCategoryPath>root/Common</_SelectedScaffolderCategoryPath>
+    <WebStackScaffolding_ControllerDialogWidth>650,285714285714</WebStackScaffolding_ControllerDialogWidth>
   </PropertyGroup>
 </Project>

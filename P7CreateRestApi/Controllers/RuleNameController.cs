@@ -1,3 +1,4 @@
+using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dot.Net.WebApi.Controllers
