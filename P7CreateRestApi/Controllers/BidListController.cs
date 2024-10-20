@@ -1,4 +1,3 @@
-using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Models;
 using P7CreateRestApi.Services;
