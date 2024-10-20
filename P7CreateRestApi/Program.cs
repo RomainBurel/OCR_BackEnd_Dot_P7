@@ -19,8 +19,10 @@ builder.Services.AddDbContext<LocalDbContext>(options =>
 builder.Services.AddScoped<DbContext, LocalDbContext>();
 
 builder.Services.AddScoped<IBidListRepository, BidListRepository>();
+builder.Services.AddScoped<ICurvePointRepository, CurvePointRepository>();
 
 builder.Services.AddScoped<IBidListService, BidListService>();
+builder.Services.AddScoped<ICurvePointService, CurvePointService>();
 
 builder.Services.AddControllers();
 

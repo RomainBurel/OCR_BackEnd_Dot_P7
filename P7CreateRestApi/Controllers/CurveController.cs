@@ -1,5 +1,6 @@
-using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
+using P7CreateRestApi.Models;
+using P7CreateRestApi.Services;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -7,51 +8,97 @@ namespace Dot.Net.WebApi.Controllers
     [Route("[controller]")]
     public class CurveController : ControllerBase
     {
-        // TODO: Inject Curve Point service
+        private readonly ICurvePointService _curvePointService;
+        private ILogger<CurveController> _logger;
+
+        public CurveController(ILogger<CurveController> logger, ICurvePointService curvePointService)
+        {
+            _logger = logger;
+            _curvePointService = curvePointService;
+        }
 
         [HttpGet]
         [Route("list")]
-        public IActionResult Home()
+        public IActionResult GetAll()
         {
-            return Ok();
+            _logger.LogInformation("All curvePoint requested");
+            return Ok(this._curvePointService.GetAll());
         }
 
         [HttpGet]
-        [Route("add")]
-        public IActionResult AddCurvePoint([FromBody]CurvePoint curvePoint)
+        [Route("display/{id}")]
+        public IActionResult GetCurvePointById(int curvePointId)
         {
-            return Ok();
-        }
+            _logger.LogInformation("CurvePoint with id {curvePointId} requested", curvePointId);
+            var bidlist = this._curvePointService.GetById(curvePointId);
 
-        [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]CurvePoint curvePoint)
-        {
-            // TODO: check data valid and save to db, after saving return bid list
-            return Ok();
-        }
+            if (bidlist == null)
+            {
+                _logger.LogWarning("CurvePoint with id {curvePointId} not found", curvePointId);
+                return NotFound($"CurvePoint with id {curvePointId} not found for update");
+            }
 
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
-        {
-            // TODO: get CurvePoint by Id and to model then show to the form
-            return Ok();
+            _logger.LogInformation("CurvePoint with id {curvePointId} found", curvePointId);
+            return Ok(bidlist);
         }
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateCurvePoint(int id, [FromBody] CurvePoint curvePoint)
+        [Route("creation/{id}")]
+        public IActionResult AddCurvePoint([FromBody] CurvePointModelAdd curvePointModel)
         {
-            // TODO: check required fields, if valid call service to update Curve and return Curve list
+            _logger.LogInformation("CurvePoint add requested");
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid model for curvePoint add");
+                return BadRequest("Invalid model for curvePoint add");
+            }
+
+            _curvePointService.Add(curvePointModel);
+            _logger.LogInformation("CurvePoint add successfull");
+
+            return Ok();
+        }
+
+        [HttpPut]
+        [Route("update/{id}")]
+        public IActionResult UpdateCurvePoint(int curvePointId, [FromBody] CurvePointModel curvePointModel)
+        {
+            _logger.LogInformation("CurvePoint update requested");
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid model for curvePoint update");
+                return BadRequest("Invalid model for curvePoint update");
+            }
+
+            var existingCurvePointModel = _curvePointService.GetById(curvePointId);
+            if (existingCurvePointModel == null)
+            {
+                _logger.LogWarning("CurvePoint with id {curvePointId} not found for update", curvePointModel);
+                return NotFound($"CurvePoint with id {curvePointId} not found for update");
+            }
+
+            _curvePointService.Update(curvePointModel);
+            _logger.LogInformation("CurvePoint update successfull");
             return Ok();
         }
 
         [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteBid(int id)
+        [Route("deletion/{id}")]
+        public IActionResult DeleteCurvePoint(int curvePointId)
         {
-            // TODO: Find Curve by Id and delete the Curve, return to Curve list
+            _logger.LogInformation("CurvePoint delete requested");
+
+            var curvePointModel = _curvePointService.GetById(curvePointId);
+            if (curvePointModel == null)
+            {
+                _logger.LogWarning("CurvePoint with id {curvePointId} not found for deletion", curvePointId);
+                return NotFound($"CurvePoint with id {curvePointId} not found for deletion");
+            }
+
+            _curvePointService.Delete(curvePointModel);
+            _logger.LogInformation("CurvePoint delete successfull");
             return Ok();
         }
     }
