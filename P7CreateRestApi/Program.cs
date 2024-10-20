@@ -17,7 +17,13 @@ builder.Services.AddDbContext<LocalDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<DbContext, LocalDbContext>();
+
+builder.Services.AddScoped<IBidListRepository, BidListRepository>();
+
+builder.Services.AddScoped<IBidListService, BidListService>();
+
 builder.Services.AddControllers();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
