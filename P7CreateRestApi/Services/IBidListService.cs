@@ -8,10 +8,10 @@ namespace P7CreateRestApi.Services
 
         public BidListModel GetById(int id);
 
-        public void Add(BidListModelAdd bidList);
+        public void Add(BidListModelAdd modelAdd);
 
-        public void Update(BidListModel bidList);
+        public void Update(BidListModel model);
 
-        public void Delete(BidListModel bidList);
+        public void Delete(BidListModel model);
     }
 }
