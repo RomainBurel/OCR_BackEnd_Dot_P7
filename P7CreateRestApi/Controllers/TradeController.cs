@@ -1,5 +1,6 @@
-using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
+using P7CreateRestApi.Models;
+using P7CreateRestApi.Services;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -7,52 +8,97 @@ namespace Dot.Net.WebApi.Controllers
     [Route("[controller]")]
     public class TradeController : ControllerBase
     {
-        // TODO: Inject Trade service
+        private readonly ITradeService _tradeService;
+        private ILogger<TradeController> _logger;
+
+        public TradeController(ILogger<TradeController> logger, ITradeService tradeService)
+        {
+            _logger = logger;
+            _tradeService = tradeService;
+        }
 
         [HttpGet]
         [Route("list")]
-        public IActionResult Home()
+        public IActionResult GetAll()
         {
-            // TODO: find all Trade, add to model
-            return Ok();
+            _logger.LogInformation("All trade requested");
+            return Ok(this._tradeService.GetAll());
         }
 
         [HttpGet]
-        [Route("add")]
-        public IActionResult AddTrade([FromBody]Trade trade)
+        [Route("display/{id}")]
+        public IActionResult GetTradeById(int tradeId)
         {
-            return Ok();
-        }
+            _logger.LogInformation("Trade with id {tradeId} requested", tradeId);
+            var bidlist = this._tradeService.GetById(tradeId);
 
-        [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]Trade trade)
-        {
-            // TODO: check data valid and save to db, after saving return Trade list
-            return Ok();
-        }
+            if (bidlist == null)
+            {
+                _logger.LogWarning("Trade with id {tradeId} not found", tradeId);
+                return NotFound($"Trade with id {tradeId} not found for update");
+            }
 
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
-        {
-            // TODO: get Trade by Id and to model then show to the form
-            return Ok();
+            _logger.LogInformation("Trade with id {tradeId} found", tradeId);
+            return Ok(bidlist);
         }
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateTrade(int id, [FromBody] Trade trade)
+        [Route("creation/{id}")]
+        public IActionResult AddTrade([FromBody] TradeModelAdd tradeModel)
         {
-            // TODO: check required fields, if valid call service to update Trade and return Trade list
+            _logger.LogInformation("Trade add requested");
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid model for trade add");
+                return BadRequest("Invalid model for trade add");
+            }
+
+            _tradeService.Add(tradeModel);
+            _logger.LogInformation("Trade add successfull");
+
+            return Ok();
+        }
+
+        [HttpPut]
+        [Route("update/{id}")]
+        public IActionResult UpdateTrade(int tradeId, [FromBody] TradeModel tradeModel)
+        {
+            _logger.LogInformation("Trade update requested");
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid model for trade update");
+                return BadRequest("Invalid model for trade update");
+            }
+
+            var existingTradeModel = _tradeService.GetById(tradeId);
+            if (existingTradeModel == null)
+            {
+                _logger.LogWarning("Trade with id {tradeId} not found for update", tradeModel);
+                return NotFound($"Trade with id {tradeId} not found for update");
+            }
+
+            _tradeService.Update(tradeModel);
+            _logger.LogInformation("Trade update successfull");
             return Ok();
         }
 
         [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteTrade(int id)
+        [Route("deletion/{id}")]
+        public IActionResult DeleteTrade(int tradeId)
         {
-            // TODO: Find Trade by Id and delete the Trade, return to Trade list
+            _logger.LogInformation("Trade delete requested");
+
+            var tradeModel = _tradeService.GetById(tradeId);
+            if (tradeModel == null)
+            {
+                _logger.LogWarning("Trade with id {tradeId} not found for deletion", tradeId);
+                return NotFound($"Trade with id {tradeId} not found for deletion");
+            }
+
+            _tradeService.Delete(tradeModel);
+            _logger.LogInformation("Trade delete successfull");
             return Ok();
         }
     }
