@@ -1,5 +1,6 @@
-using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
+using P7CreateRestApi.Models;
+using P7CreateRestApi.Services;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -7,52 +8,97 @@ namespace Dot.Net.WebApi.Controllers
     [Route("[controller]")]
     public class RatingController : ControllerBase
     {
-        // TODO: Inject Rating service
+        private readonly IRatingService _ratingService;
+        private ILogger<RatingController> _logger;
+
+        public RatingController(ILogger<RatingController> logger, IRatingService ratingService)
+        {
+            _logger = logger;
+            _ratingService = ratingService;
+        }
 
         [HttpGet]
         [Route("list")]
-        public IActionResult Home()
+        public IActionResult GetAll()
         {
-            // TODO: find all Rating, add to model
-            return Ok();
+            _logger.LogInformation("All rating requested");
+            return Ok(this._ratingService.GetAll());
         }
 
         [HttpGet]
-        [Route("add")]
-        public IActionResult AddRatingForm([FromBody]Rating rating)
+        [Route("display/{id}")]
+        public IActionResult GetRatingById(int ratingId)
         {
-            return Ok();
-        }
+            _logger.LogInformation("Rating with id {ratingId} requested", ratingId);
+            var bidlist = this._ratingService.GetById(ratingId);
 
-        [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]Rating rating)
-        {
-            // TODO: check data valid and save to db, after saving return Rating list
-            return Ok();
-        }
+            if (bidlist == null)
+            {
+                _logger.LogWarning("Rating with id {ratingId} not found", ratingId);
+                return NotFound($"Rating with id {ratingId} not found for update");
+            }
 
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
-        {
-            // TODO: get Rating by Id and to model then show to the form
-            return Ok();
+            _logger.LogInformation("Rating with id {ratingId} found", ratingId);
+            return Ok(bidlist);
         }
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateRating(int id, [FromBody] Rating rating)
+        [Route("creation/{id}")]
+        public IActionResult AddRating([FromBody] RatingModelAdd ratingModel)
         {
-            // TODO: check required fields, if valid call service to update Rating and return Rating list
+            _logger.LogInformation("Rating add requested");
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid model for rating add");
+                return BadRequest("Invalid model for rating add");
+            }
+
+            _ratingService.Add(ratingModel);
+            _logger.LogInformation("Rating add successfull");
+
+            return Ok();
+        }
+
+        [HttpPut]
+        [Route("update/{id}")]
+        public IActionResult UpdateRating(int ratingId, [FromBody] RatingModel ratingModel)
+        {
+            _logger.LogInformation("Rating update requested");
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid model for rating update");
+                return BadRequest("Invalid model for rating update");
+            }
+
+            var existingRatingModel = _ratingService.GetById(ratingId);
+            if (existingRatingModel == null)
+            {
+                _logger.LogWarning("Rating with id {ratingId} not found for update", ratingModel);
+                return NotFound($"Rating with id {ratingId} not found for update");
+            }
+
+            _ratingService.Update(ratingModel);
+            _logger.LogInformation("Rating update successfull");
             return Ok();
         }
 
         [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteRating(int id)
+        [Route("deletion/{id}")]
+        public IActionResult DeleteRating(int ratingId)
         {
-            // TODO: Find Rating by Id and delete the Rating, return to Rating list
+            _logger.LogInformation("Rating delete requested");
+
+            var ratingModel = _ratingService.GetById(ratingId);
+            if (ratingModel == null)
+            {
+                _logger.LogWarning("Rating with id {ratingId} not found for deletion", ratingId);
+                return NotFound($"Rating with id {ratingId} not found for deletion");
+            }
+
+            _ratingService.Delete(ratingModel);
+            _logger.LogInformation("Rating delete successfull");
             return Ok();
         }
     }

@@ -8,10 +8,10 @@ namespace P7CreateRestApi.Services
 
         public CurvePointModel GetById(int id);
 
-        public void Add(CurvePointModelAdd CurvePoint);
+        public void Add(CurvePointModelAdd modelAdd);
 
-        public void Update(CurvePointModel CurvePoint);
+        public void Update(CurvePointModel model);
 
-        public void Delete(CurvePointModel CurvePoint);
+        public void Delete(CurvePointModel model);
     }
 }

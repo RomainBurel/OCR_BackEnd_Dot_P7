@@ -23,9 +23,9 @@ namespace P7CreateRestApi.Services
             return this.GetModelFromData(this._bidListRepository.GetById(id));
         }
 
-        public void Add(BidListModelAdd model)
+        public void Add(BidListModelAdd modelAdd)
         {
-            this._bidListRepository.Add(this.GetDataFromModelAdd(model));
+            this._bidListRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
         public void Update(BidListModel model)
