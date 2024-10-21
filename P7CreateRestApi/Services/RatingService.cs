@@ -23,9 +23,9 @@ namespace P7CreateRestApi.Services
             return this.GetModelFromData(this._ratingRepository.GetById(id));
         }
 
-        public void Add(RatingModelAdd model)
+        public void Add(RatingModelAdd modelAdd)
         {
-            this._ratingRepository.Add(this.GetDataFromModelAdd(model));
+            this._ratingRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
         public void Update(RatingModel model)

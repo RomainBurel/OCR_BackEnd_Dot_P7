@@ -1,5 +1,6 @@
-using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
+using P7CreateRestApi.Models;
+using P7CreateRestApi.Services;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -7,52 +8,97 @@ namespace Dot.Net.WebApi.Controllers
     [Route("[controller]")]
     public class RuleNameController : ControllerBase
     {
-        // TODO: Inject RuleName service
+        private readonly IRuleNameService _ruleNameService;
+        private ILogger<RuleNameController> _logger;
+
+        public RuleNameController(ILogger<RuleNameController> logger, IRuleNameService ruleNameService)
+        {
+            _logger = logger;
+            _ruleNameService = ruleNameService;
+        }
 
         [HttpGet]
         [Route("list")]
-        public IActionResult Home()
+        public IActionResult GetAll()
         {
-            // TODO: find all RuleName, add to model
-            return Ok();
+            _logger.LogInformation("All ruleName requested");
+            return Ok(this._ruleNameService.GetAll());
         }
 
         [HttpGet]
-        [Route("add")]
-        public IActionResult AddRuleName([FromBody]RuleName trade)
+        [Route("display/{id}")]
+        public IActionResult GetRuleNameById(int ruleNameId)
         {
-            return Ok();
-        }
+            _logger.LogInformation("RuleName with id {ruleNameId} requested", ruleNameId);
+            var bidlist = this._ruleNameService.GetById(ruleNameId);
 
-        [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]RuleName trade)
-        {
-            // TODO: check data valid and save to db, after saving return RuleName list
-            return Ok();
-        }
+            if (bidlist == null)
+            {
+                _logger.LogWarning("RuleName with id {ruleNameId} not found", ruleNameId);
+                return NotFound($"RuleName with id {ruleNameId} not found for update");
+            }
 
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
-        {
-            // TODO: get RuleName by Id and to model then show to the form
-            return Ok();
+            _logger.LogInformation("RuleName with id {ruleNameId} found", ruleNameId);
+            return Ok(bidlist);
         }
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateRuleName(int id, [FromBody] RuleName rating)
+        [Route("creation/{id}")]
+        public IActionResult AddRuleName([FromBody] RuleNameModelAdd ruleNameModel)
         {
-            // TODO: check required fields, if valid call service to update RuleName and return RuleName list
+            _logger.LogInformation("RuleName add requested");
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid model for ruleName add");
+                return BadRequest("Invalid model for ruleName add");
+            }
+
+            _ruleNameService.Add(ruleNameModel);
+            _logger.LogInformation("RuleName add successfull");
+
+            return Ok();
+        }
+
+        [HttpPut]
+        [Route("update/{id}")]
+        public IActionResult UpdateRuleName(int ruleNameId, [FromBody] RuleNameModel ruleNameModel)
+        {
+            _logger.LogInformation("RuleName update requested");
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid model for ruleName update");
+                return BadRequest("Invalid model for ruleName update");
+            }
+
+            var existingRuleNameModel = _ruleNameService.GetById(ruleNameId);
+            if (existingRuleNameModel == null)
+            {
+                _logger.LogWarning("RuleName with id {ruleNameId} not found for update", ruleNameModel);
+                return NotFound($"RuleName with id {ruleNameId} not found for update");
+            }
+
+            _ruleNameService.Update(ruleNameModel);
+            _logger.LogInformation("RuleName update successfull");
             return Ok();
         }
 
         [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteRuleName(int id)
+        [Route("deletion/{id}")]
+        public IActionResult DeleteRuleName(int ruleNameId)
         {
-            // TODO: Find RuleName by Id and delete the RuleName, return to Rule list
+            _logger.LogInformation("RuleName delete requested");
+
+            var ruleNameModel = _ruleNameService.GetById(ruleNameId);
+            if (ruleNameModel == null)
+            {
+                _logger.LogWarning("RuleName with id {ruleNameId} not found for deletion", ruleNameId);
+                return NotFound($"RuleName with id {ruleNameId} not found for deletion");
+            }
+
+            _ruleNameService.Delete(ruleNameModel);
+            _logger.LogInformation("RuleName delete successfull");
             return Ok();
         }
     }
