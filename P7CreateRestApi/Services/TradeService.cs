@@ -1,7 +1,6 @@
 ﻿using Dot.Net.WebApi.Domain;
 using P7CreateRestApi.Models;
 using P7CreateRestApi.Repositories;
-using System.Diagnostics;
 
 namespace P7CreateRestApi.Services
 {

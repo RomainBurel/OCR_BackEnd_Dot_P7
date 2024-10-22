@@ -1,6 +1,6 @@
-using Dot.Net.WebApi.Domain;
-using Dot.Net.WebApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using P7CreateRestApi.Models;
+using P7CreateRestApi.Services;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -8,77 +8,97 @@ namespace Dot.Net.WebApi.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        private UserRepository _userRepository;
+        private readonly IUserService _userService;
+        private ILogger<UserController> _logger;
 
-        public UserController(UserRepository userRepository)
+        public UserController(ILogger<UserController> logger, IUserService userService)
         {
-            _userRepository = userRepository;
+            _logger = logger;
+            _userService = userService;
         }
 
         [HttpGet]
         [Route("list")]
-        public IActionResult Home()
+        public IActionResult GetAll()
         {
-            return Ok();
+            _logger.LogInformation("All user requested");
+            return Ok(this._userService.GetAll());
         }
 
         [HttpGet]
-        [Route("add")]
-        public IActionResult AddUser([FromBody]User user)
+        [Route("display/{id}")]
+        public IActionResult GetUserById(int userId)
         {
-            return Ok();
-        }
+            _logger.LogInformation("User with id {userId} requested", userId);
+            var bidlist = this._userService.GetById(userId);
 
-        [HttpGet]
-        [Route("validate")]
-        public IActionResult Validate([FromBody]User user)
-        {
-            if (!ModelState.IsValid)
+            if (bidlist == null)
             {
-                return BadRequest();
+                _logger.LogWarning("User with id {userId} not found", userId);
+                return NotFound($"User with id {userId} not found for update");
             }
-           
-           _userRepository.Add(user);
 
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
-        {
-            User user = _userRepository.FindById(id);
-            
-            if (user == null)
-                throw new ArgumentException("Invalid user Id:" + id);
-
-            return Ok();
+            _logger.LogInformation("User with id {userId} found", userId);
+            return Ok(bidlist);
         }
 
         [HttpPost]
-        [Route("update/{id}")]
-        public IActionResult UpdateUser(int id, [FromBody] User user)
+        [Route("creation/{id}")]
+        public IActionResult AddUser([FromBody] UserModelAdd userModel)
         {
-            // TODO: check required fields, if valid call service to update Trade and return Trade list
+            _logger.LogInformation("User add requested");
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid model for user add");
+                return BadRequest("Invalid model for user add");
+            }
+
+            _userService.Add(userModel);
+            _logger.LogInformation("User add successfull");
+
+            return Ok();
+        }
+
+        [HttpPut]
+        [Route("update/{id}")]
+        public IActionResult UpdateUser(int userId, [FromBody] UserModel userModel)
+        {
+            _logger.LogInformation("User update requested");
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Invalid model for user update");
+                return BadRequest("Invalid model for user update");
+            }
+
+            var existingUserModel = _userService.GetById(userId);
+            if (existingUserModel == null)
+            {
+                _logger.LogWarning("User with id {userId} not found for update", userModel);
+                return NotFound($"User with id {userId} not found for update");
+            }
+
+            _userService.Update(userModel);
+            _logger.LogInformation("User update successfull");
             return Ok();
         }
 
         [HttpDelete]
-        [Route("{id}")]
-        public IActionResult DeleteUser(int id)
+        [Route("deletion/{id}")]
+        public IActionResult DeleteUser(int userId)
         {
-            User user = _userRepository.FindById(id);
-            
-            if (user == null)
-                throw new ArgumentException("Invalid user Id:" + id);
+            _logger.LogInformation("User delete requested");
 
-            return Ok();
-        }
+            var userModel = _userService.GetById(userId);
+            if (userModel == null)
+            {
+                _logger.LogWarning("User with id {userId} not found for deletion", userId);
+                return NotFound($"User with id {userId} not found for deletion");
+            }
 
-        [HttpGet]
-        [Route("/secure/article-details")]
-        public async Task<ActionResult<List<User>>> GetAllUserArticles()
-        {
+            _userService.Delete(userModel);
+            _logger.LogInformation("User delete successfull");
             return Ok();
         }
     }
