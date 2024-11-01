@@ -62,7 +62,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPut]
         [Route("update/{id}")]
-        public IActionResult UpdateTrade(int tradeId, [FromBody] TradeModel tradeModel)
+        public IActionResult UpdateTrade(int tradeId, [FromBody] TradeModelUpdate tradeModelUpdate)
         {
             _logger.LogInformation("Trade update requested");
 
@@ -75,11 +75,11 @@ namespace Dot.Net.WebApi.Controllers
             var existingTradeModel = _tradeService.GetById(tradeId);
             if (existingTradeModel == null)
             {
-                _logger.LogWarning("Trade with id {tradeId} not found for update", tradeModel);
+                _logger.LogWarning("Trade with id {tradeId} not found for update", tradeModelUpdate);
                 return NotFound($"Trade with id {tradeId} not found for update");
             }
 
-            _tradeService.Update(tradeModel);
+            _tradeService.Update(existingTradeModel, tradeModelUpdate);
             _logger.LogInformation("Trade update successfull");
             return Ok();
         }

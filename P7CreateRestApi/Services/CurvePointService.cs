@@ -28,9 +28,9 @@ namespace P7CreateRestApi.Services
             this._curvePointRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(CurvePointModel model)
+        public void Update(CurvePointModel model, CurvePointModelUpdate modelUpdate)
         {
-            this._curvePointRepository.Update(this.GetDataFromModel(model));
+            this._curvePointRepository.Update(this.GetDataFromModelUpdate(model, modelUpdate));
         }
 
         public void Delete(CurvePointModel model)
@@ -61,6 +61,16 @@ namespace P7CreateRestApi.Services
                 CurvePointValue = model.CurvePointValue,
                 CreationDate = model.CreationDate
             };
+        }
+
+        private CurvePoint GetDataFromModelUpdate(CurvePointModel model, CurvePointModelUpdate modelUpdate)
+        {
+            var curvePoint = this.GetDataFromModel(model);
+            curvePoint.CurveId = modelUpdate.CurveId;
+            curvePoint.AsOfDate = modelUpdate.AsOfDate;
+            curvePoint.Term = modelUpdate.Term;
+            curvePoint.CurvePointValue = modelUpdate.CurvePointValue;
+            return curvePoint;
         }
 
         private CurvePoint GetDataFromModel(CurvePointModel model)

@@ -1,6 +1,6 @@
 ﻿namespace P7CreateRestApi.Models
 {
-    public class TradeModelAdd
+    public class TradeModelUpdate
     {
         public string Account { get; set; } = string.Empty;
         public string AccountType { get; set; } = string.Empty;
@@ -14,8 +14,8 @@
         public string Trader { get; set; } = string.Empty;
         public string Benchmark { get; set; } = string.Empty;
         public string Book { get; set; } = string.Empty;
-        public string CreationName { get; set; } = string.Empty;
-        public DateTime? CreationDate { get; set; }
+        public string RevisionName { get; set; } = string.Empty;
+        public DateTime? RevisionDate { get; set; }
         public string DealName { get; set; } = string.Empty;
         public string DealType { get; set; } = string.Empty;
         public string SourceListId { get; set; } = string.Empty;

@@ -28,9 +28,9 @@ namespace P7CreateRestApi.Services
             this._bidListRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(BidListModel model)
+        public void Update(BidListModel model, BidListModelUpdate modelUpdate)
         {
-            this._bidListRepository.Update(this.GetDataFromModel(model));
+            this._bidListRepository.Update(this.GetDataFromModelUpdate(model, modelUpdate));
         }
 
         public void Delete(BidListModel model)
@@ -86,13 +86,36 @@ namespace P7CreateRestApi.Services
                 Book = model.Book,
                 CreationName = model.CreationName,
                 CreationDate = model.CreationDate,
-                RevisionName = model.RevisionName,
-                RevisionDate = model.RevisionDate,
                 DealName = model.DealName,
                 DealType = model.DealType,
                 SourceListId = model.SourceListId,
                 Side = model.Side
             };
+        }
+
+        private BidList GetDataFromModelUpdate(BidListModel model, BidListModelUpdate modelUpdate)
+        {
+            var bidList = this.GetDataFromModel(model);
+            bidList.Account = modelUpdate.Account;
+            bidList.BidType = modelUpdate.BidType;
+            bidList.BidQuantity = modelUpdate.BidQuantity;
+            bidList.AskQuantity = modelUpdate.AskQuantity;
+            bidList.Bid = modelUpdate.Bid;
+            bidList.Ask = modelUpdate.Ask;
+            bidList.Benchmark = modelUpdate.Benchmark;
+            bidList.BidListDate = modelUpdate.BidListDate;
+            bidList.Commentary = modelUpdate.Commentary;
+            bidList.BidSecurity = modelUpdate.BidSecurity;
+            bidList.BidStatus = modelUpdate.BidStatus;
+            bidList.Trader = modelUpdate.Trader;
+            bidList.Book = modelUpdate.Book;
+            bidList.RevisionName = modelUpdate.RevisionName;
+            bidList.RevisionDate = modelUpdate.RevisionDate;
+            bidList.DealName = modelUpdate.DealName;
+            bidList.DealType = modelUpdate.DealType;
+            bidList.SourceListId = modelUpdate.SourceListId;
+            bidList.Side = modelUpdate.Side;
+            return bidList;
         }
 
         private BidList GetDataFromModel(BidListModel model)

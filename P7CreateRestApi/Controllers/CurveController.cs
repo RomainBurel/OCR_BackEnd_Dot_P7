@@ -62,7 +62,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPut]
         [Route("update/{id}")]
-        public IActionResult UpdateCurvePoint(int curvePointId, [FromBody] CurvePointModel curvePointModel)
+        public IActionResult UpdateCurvePoint(int curvePointId, [FromBody] CurvePointModelUpdate curvePointModelUpdate)
         {
             _logger.LogInformation("CurvePoint update requested");
 
@@ -75,11 +75,11 @@ namespace Dot.Net.WebApi.Controllers
             var existingCurvePointModel = _curvePointService.GetById(curvePointId);
             if (existingCurvePointModel == null)
             {
-                _logger.LogWarning("CurvePoint with id {curvePointId} not found for update", curvePointModel);
+                _logger.LogWarning("CurvePoint with id {curvePointId} not found for update", curvePointModelUpdate);
                 return NotFound($"CurvePoint with id {curvePointId} not found for update");
             }
 
-            _curvePointService.Update(curvePointModel);
+            _curvePointService.Update(existingCurvePointModel, curvePointModelUpdate);
             _logger.LogInformation("CurvePoint update successfull");
             return Ok();
         }

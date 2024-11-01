@@ -10,7 +10,7 @@ namespace P7CreateRestApi.Services
 
         public void Add(TradeModelAdd modelAdd);
 
-        public void Update(TradeModel model);
+        public void Update(TradeModel model, TradeModelUpdate modelUpdate);
 
         public void Delete(TradeModel model);
     }

@@ -28,9 +28,9 @@ namespace P7CreateRestApi.Services
             this._tradeRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(TradeModel model)
+        public void Update(TradeModel model, TradeModelUpdate modelUpdate)
         {
-            this._tradeRepository.Update(this.GetDataFromModel(model));
+            this._tradeRepository.Update(this.GetDataFromModelUpdate(model, modelUpdate));
         }
 
         public void Delete(TradeModel model)
@@ -84,13 +84,35 @@ namespace P7CreateRestApi.Services
                 Book = model.Book,
                 CreationName = model.CreationName,
                 CreationDate = model.CreationDate,
-                RevisionName = model.RevisionName,
-                RevisionDate = model.RevisionDate,
                 DealName = model.DealName,
                 DealType = model.DealType,
                 SourceListId = model.SourceListId,
                 Side = model.Side
             };
+        }
+
+        private Trade GetDataFromModelUpdate(TradeModel model, TradeModelUpdate modelUpdate)
+        {
+            var trade = this.GetDataFromModel(model);
+            trade.Account = modelUpdate.Account;
+            trade.AccountType = modelUpdate.AccountType;
+            trade.BuyQuantity = modelUpdate.BuyQuantity;
+            trade.SellQuantity = modelUpdate.SellQuantity;
+            trade.BuyPrice = modelUpdate.BuyPrice;
+            trade.SellPrice = modelUpdate.SellPrice;
+            trade.TradeDate = modelUpdate.TradeDate;
+            trade.TradeSecurity = modelUpdate.TradeSecurity;
+            trade.TradeStatus = modelUpdate.TradeStatus;
+            trade.Trader = modelUpdate.Trader;
+            trade.Benchmark = modelUpdate.Benchmark;
+            trade.Book = modelUpdate.Book;
+            trade.RevisionName = modelUpdate.RevisionName;
+            trade.RevisionDate = modelUpdate.RevisionDate;
+            trade.DealName = modelUpdate.DealName;
+            trade.DealType = modelUpdate.DealType;
+            trade.SourceListId = modelUpdate.SourceListId;
+            trade.Side = modelUpdate.Side;
+            return trade;
         }
 
         private Trade GetDataFromModel(TradeModel model)

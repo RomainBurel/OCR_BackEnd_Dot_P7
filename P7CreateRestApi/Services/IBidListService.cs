@@ -10,7 +10,7 @@ namespace P7CreateRestApi.Services
 
         public void Add(BidListModelAdd modelAdd);
 
-        public void Update(BidListModel model);
+        public void Update(BidListModel model, BidListModelUpdate modelUpdate);
 
         public void Delete(BidListModel model);
     }
