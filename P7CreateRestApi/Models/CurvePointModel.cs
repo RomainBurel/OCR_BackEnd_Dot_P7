@@ -1,7 +1,10 @@
-﻿namespace P7CreateRestApi.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace P7CreateRestApi.Models
 {
     public class CurvePointModel
     {
+        [Required]
         public int Id { get; set; }
         public byte? CurveId { get; set; }
         public DateTime? AsOfDate { get; set; }
