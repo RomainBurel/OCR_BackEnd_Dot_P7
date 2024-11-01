@@ -47,13 +47,6 @@ namespace Dot.Net.WebApi.Controllers
         public IActionResult AddBidList([FromBody] BidListModelAdd bidListModel)
         {
             _logger.LogInformation("BidList add requested");
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model for bidList add");
-                return BadRequest("Invalid model for bidList add");
-            }
-
             _bidListService.Add(bidListModel);
             _logger.LogInformation("BidList add successfull");
 
@@ -65,12 +58,6 @@ namespace Dot.Net.WebApi.Controllers
         public IActionResult UpdateBidList(int bidListId, [FromBody] BidListModelUpdate bidListModelUpdate)
         {
             _logger.LogInformation("BidList update requested");
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model for bidList update");
-                return BadRequest("Invalid model for bidList update");
-            }
 
             var existingBidListModel = _bidListService.GetById(bidListId);
             if (existingBidListModel == null)

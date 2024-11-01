@@ -30,30 +30,23 @@ namespace Dot.Net.WebApi.Controllers
         public IActionResult GetRuleNameById(int ruleNameId)
         {
             _logger.LogInformation("RuleName with id {ruleNameId} requested", ruleNameId);
-            var bidlist = this._ruleNameService.GetById(ruleNameId);
+            var ruleName = this._ruleNameService.GetById(ruleNameId);
 
-            if (bidlist == null)
+            if (ruleName == null)
             {
                 _logger.LogWarning("RuleName with id {ruleNameId} not found", ruleNameId);
                 return NotFound($"RuleName with id {ruleNameId} not found for update");
             }
 
             _logger.LogInformation("RuleName with id {ruleNameId} found", ruleNameId);
-            return Ok(bidlist);
+            return Ok(ruleName);
         }
 
         [HttpPost]
-        [Route("creation/{id}")]
+        [Route("creation")]
         public IActionResult AddRuleName([FromBody] RuleNameModelAdd ruleNameModel)
         {
             _logger.LogInformation("RuleName add requested");
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model for ruleName add");
-                return BadRequest("Invalid model for ruleName add");
-            }
-
             _ruleNameService.Add(ruleNameModel);
             _logger.LogInformation("RuleName add successfull");
 
@@ -65,12 +58,6 @@ namespace Dot.Net.WebApi.Controllers
         public IActionResult UpdateRuleName(int ruleNameId, [FromBody] RuleNameModel ruleNameModel)
         {
             _logger.LogInformation("RuleName update requested");
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model for ruleName update");
-                return BadRequest("Invalid model for ruleName update");
-            }
 
             var existingRuleNameModel = _ruleNameService.GetById(ruleNameId);
             if (existingRuleNameModel == null)

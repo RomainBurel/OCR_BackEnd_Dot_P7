@@ -30,30 +30,23 @@ namespace Dot.Net.WebApi.Controllers
         public IActionResult GetCurvePointById(int curvePointId)
         {
             _logger.LogInformation("CurvePoint with id {curvePointId} requested", curvePointId);
-            var bidlist = this._curvePointService.GetById(curvePointId);
+            var curvePoint = this._curvePointService.GetById(curvePointId);
 
-            if (bidlist == null)
+            if (curvePoint == null)
             {
                 _logger.LogWarning("CurvePoint with id {curvePointId} not found", curvePointId);
                 return NotFound($"CurvePoint with id {curvePointId} not found for update");
             }
 
             _logger.LogInformation("CurvePoint with id {curvePointId} found", curvePointId);
-            return Ok(bidlist);
+            return Ok(curvePoint);
         }
 
         [HttpPost]
-        [Route("creation/{id}")]
+        [Route("creation")]
         public IActionResult AddCurvePoint([FromBody] CurvePointModelAdd curvePointModel)
         {
             _logger.LogInformation("CurvePoint add requested");
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model for curvePoint add");
-                return BadRequest("Invalid model for curvePoint add");
-            }
-
             _curvePointService.Add(curvePointModel);
             _logger.LogInformation("CurvePoint add successfull");
 
@@ -65,12 +58,6 @@ namespace Dot.Net.WebApi.Controllers
         public IActionResult UpdateCurvePoint(int curvePointId, [FromBody] CurvePointModelUpdate curvePointModelUpdate)
         {
             _logger.LogInformation("CurvePoint update requested");
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model for curvePoint update");
-                return BadRequest("Invalid model for curvePoint update");
-            }
 
             var existingCurvePointModel = _curvePointService.GetById(curvePointId);
             if (existingCurvePointModel == null)
