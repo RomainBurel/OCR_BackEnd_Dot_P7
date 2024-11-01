@@ -30,30 +30,23 @@ namespace Dot.Net.WebApi.Controllers
         public IActionResult GetTradeById(int tradeId)
         {
             _logger.LogInformation("Trade with id {tradeId} requested", tradeId);
-            var bidlist = this._tradeService.GetById(tradeId);
+            var trade = this._tradeService.GetById(tradeId);
 
-            if (bidlist == null)
+            if (trade == null)
             {
                 _logger.LogWarning("Trade with id {tradeId} not found", tradeId);
                 return NotFound($"Trade with id {tradeId} not found for update");
             }
 
             _logger.LogInformation("Trade with id {tradeId} found", tradeId);
-            return Ok(bidlist);
+            return Ok(trade);
         }
 
         [HttpPost]
-        [Route("creation/{id}")]
+        [Route("creation")]
         public IActionResult AddTrade([FromBody] TradeModelAdd tradeModel)
         {
             _logger.LogInformation("Trade add requested");
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model for trade add");
-                return BadRequest("Invalid model for trade add");
-            }
-
             _tradeService.Add(tradeModel);
             _logger.LogInformation("Trade add successfull");
 
@@ -62,24 +55,18 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPut]
         [Route("update/{id}")]
-        public IActionResult UpdateTrade(int tradeId, [FromBody] TradeModel tradeModel)
+        public IActionResult UpdateTrade(int tradeId, [FromBody] TradeModelUpdate tradeModelUpdate)
         {
             _logger.LogInformation("Trade update requested");
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model for trade update");
-                return BadRequest("Invalid model for trade update");
-            }
 
             var existingTradeModel = _tradeService.GetById(tradeId);
             if (existingTradeModel == null)
             {
-                _logger.LogWarning("Trade with id {tradeId} not found for update", tradeModel);
+                _logger.LogWarning("Trade with id {tradeId} not found for update", tradeModelUpdate);
                 return NotFound($"Trade with id {tradeId} not found for update");
             }
 
-            _tradeService.Update(tradeModel);
+            _tradeService.Update(existingTradeModel, tradeModelUpdate);
             _logger.LogInformation("Trade update successfull");
             return Ok();
         }

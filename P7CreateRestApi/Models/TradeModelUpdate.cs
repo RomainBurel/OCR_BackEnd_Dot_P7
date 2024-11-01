@@ -2,7 +2,7 @@
 
 namespace P7CreateRestApi.Models
 {
-    public class TradeModelAdd
+    public class TradeModelUpdate
     {
         [Required]
         public string Account { get; set; }
@@ -24,8 +24,8 @@ namespace P7CreateRestApi.Models
         [Required]
         public string Book { get; set; }
         [Required]
-        public string CreationName { get; set; }
-        public DateTime? CreationDate { get; set; }
+        public string RevisionName { get; set; }
+        public DateTime? RevisionDate { get; set; }
         [Required]
         public string DealName { get; set; }
         [Required]

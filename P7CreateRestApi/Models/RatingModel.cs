@@ -1,11 +1,17 @@
-﻿namespace P7CreateRestApi.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace P7CreateRestApi.Models
 {
     public class RatingModel
     {
+        [Required]
         public int Id { get; set; }
-        public string MoodysRating { get; set; } = string.Empty;
-        public string SandPRating { get; set; } = string.Empty;
-        public string FitchRating { get; set; } = string.Empty;
+        [Required]
+        public string MoodysRating { get; set; }
+        [Required]
+        public string SandPRating { get; set; }
+        [Required]
+        public string FitchRating { get; set; }
         public byte? OrderNumber { get; set; }
     }
 }

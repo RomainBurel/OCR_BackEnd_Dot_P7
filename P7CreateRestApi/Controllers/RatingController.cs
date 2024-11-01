@@ -30,30 +30,23 @@ namespace Dot.Net.WebApi.Controllers
         public IActionResult GetRatingById(int ratingId)
         {
             _logger.LogInformation("Rating with id {ratingId} requested", ratingId);
-            var bidlist = this._ratingService.GetById(ratingId);
+            var rating = this._ratingService.GetById(ratingId);
 
-            if (bidlist == null)
+            if (rating == null)
             {
                 _logger.LogWarning("Rating with id {ratingId} not found", ratingId);
                 return NotFound($"Rating with id {ratingId} not found for update");
             }
 
             _logger.LogInformation("Rating with id {ratingId} found", ratingId);
-            return Ok(bidlist);
+            return Ok(rating);
         }
 
         [HttpPost]
-        [Route("creation/{id}")]
+        [Route("creation")]
         public IActionResult AddRating([FromBody] RatingModelAdd ratingModel)
         {
             _logger.LogInformation("Rating add requested");
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model for rating add");
-                return BadRequest("Invalid model for rating add");
-            }
-
             _ratingService.Add(ratingModel);
             _logger.LogInformation("Rating add successfull");
 
@@ -65,12 +58,6 @@ namespace Dot.Net.WebApi.Controllers
         public IActionResult UpdateRating(int ratingId, [FromBody] RatingModel ratingModel)
         {
             _logger.LogInformation("Rating update requested");
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model for rating update");
-                return BadRequest("Invalid model for rating update");
-            }
 
             var existingRatingModel = _ratingService.GetById(ratingId);
             if (existingRatingModel == null)

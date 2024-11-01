@@ -30,30 +30,23 @@ namespace Dot.Net.WebApi.Controllers
         public IActionResult GetUserById(int userId)
         {
             _logger.LogInformation("User with id {userId} requested", userId);
-            var bidlist = this._userService.GetById(userId);
+            var user = this._userService.GetById(userId);
 
-            if (bidlist == null)
+            if (user == null)
             {
                 _logger.LogWarning("User with id {userId} not found", userId);
                 return NotFound($"User with id {userId} not found for update");
             }
 
             _logger.LogInformation("User with id {userId} found", userId);
-            return Ok(bidlist);
+            return Ok(user);
         }
 
         [HttpPost]
-        [Route("creation/{id}")]
+        [Route("creation")]
         public IActionResult AddUser([FromBody] UserModelAdd userModel)
         {
             _logger.LogInformation("User add requested");
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model for user add");
-                return BadRequest("Invalid model for user add");
-            }
-
             _userService.Add(userModel);
             _logger.LogInformation("User add successfull");
 
@@ -65,12 +58,6 @@ namespace Dot.Net.WebApi.Controllers
         public IActionResult UpdateUser(int userId, [FromBody] UserModel userModel)
         {
             _logger.LogInformation("User update requested");
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning("Invalid model for user update");
-                return BadRequest("Invalid model for user update");
-            }
 
             var existingUserModel = _userService.GetById(userId);
             if (existingUserModel == null)
