@@ -1,4 +1,6 @@
 using Dot.Net.WebApi.Data;
+using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Repositories;
 using P7CreateRestApi.Services;
@@ -15,6 +17,26 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<LocalDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+{
+    // User parameters (Each email can be used for only one User record)
+    options.User.RequireUniqueEmail = true;
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@";
+
+    // Password parameters
+    options.Password.RequireDigit = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = true;
+
+    // Lockout parameters
+    options.Lockout.MaxFailedAccessAttempts = 3;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+})
+    .AddEntityFrameworkStores<LocalDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<DbContext, LocalDbContext>();
 
@@ -33,6 +55,8 @@ builder.Services.AddScoped<ITradeService, TradeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddControllers();
+
+builder.Services.AddAuthentication();
 
 var app = builder.Build();
 

@@ -44,7 +44,6 @@ namespace P7CreateRestApi.Services
             {
                 Id = user.Id,
                 UserName = user.UserName,
-                Password = user.Password,
                 FullName = user.FullName,
                 Role = user.Role
             };
@@ -55,7 +54,6 @@ namespace P7CreateRestApi.Services
             return new User()
             {
                 UserName = model.UserName,
-                Password = model.Password,
                 FullName = model.FullName,
                 Role = model.Role
             };
@@ -67,7 +65,6 @@ namespace P7CreateRestApi.Services
             {
                 Id = model.Id,
                 UserName = model.UserName,
-                Password = model.Password,
                 FullName = model.FullName,
                 Role = model.Role
             };
