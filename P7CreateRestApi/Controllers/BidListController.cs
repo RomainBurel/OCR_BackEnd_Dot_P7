@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Models;
 using P7CreateRestApi.Services;
@@ -44,6 +45,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPost]
         [Route("creation/{id}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult AddBidList([FromBody] BidListModelAdd bidListModel)
         {
             _logger.LogInformation("BidList add requested");
@@ -55,6 +57,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPut]
         [Route("update/{id}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpdateBidList(int bidListId, [FromBody] BidListModelUpdate bidListModelUpdate)
         {
             _logger.LogInformation("BidList update requested");
@@ -73,6 +76,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpDelete]
         [Route("deletion/{id}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteBidList(int bidListId)
         {
             _logger.LogInformation("BidList delete requested");

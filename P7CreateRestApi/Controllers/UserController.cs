@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Models;
 using P7CreateRestApi.Services;
@@ -44,6 +45,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPost]
         [Route("creation")]
+        [Authorize(Roles = "Admin")]
         public IActionResult AddUser([FromBody] UserModelAdd userModel)
         {
             _logger.LogInformation("User add requested");
@@ -55,6 +57,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPut]
         [Route("update/{id}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpdateUser(int userId, [FromBody] UserModel userModel)
         {
             _logger.LogInformation("User update requested");
@@ -73,6 +76,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpDelete]
         [Route("deletion/{id}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteUser(int userId)
         {
             _logger.LogInformation("User delete requested");

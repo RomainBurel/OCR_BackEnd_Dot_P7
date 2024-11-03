@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Models;
 using P7CreateRestApi.Services;
@@ -44,6 +45,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPost]
         [Route("creation")]
+        [Authorize(Roles = "Admin")]
         public IActionResult AddCurvePoint([FromBody] CurvePointModelAdd curvePointModel)
         {
             _logger.LogInformation("CurvePoint add requested");
@@ -55,6 +57,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPut]
         [Route("update/{id}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpdateCurvePoint(int curvePointId, [FromBody] CurvePointModelUpdate curvePointModelUpdate)
         {
             _logger.LogInformation("CurvePoint update requested");
@@ -73,6 +76,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpDelete]
         [Route("deletion/{id}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteCurvePoint(int curvePointId)
         {
             _logger.LogInformation("CurvePoint delete requested");
