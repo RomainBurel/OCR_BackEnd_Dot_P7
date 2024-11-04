@@ -27,7 +27,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("display/{id}")]
+        [Route("display/{userId}")]
         public IActionResult GetUserById(int userId)
         {
             _logger.LogInformation("User with id {userId} requested", userId);
@@ -56,7 +56,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPut]
-        [Route("update/{id}")]
+        [Route("update/{userId}")]
         [Authorize(Roles = "Admin")]
         public IActionResult UpdateUser(int userId, [FromBody] UserModel userModel)
         {
@@ -75,7 +75,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("deletion/{id}")]
+        [Route("deletion/{userId}")]
         [Authorize(Roles = "Admin")]
         public IActionResult DeleteUser(int userId)
         {

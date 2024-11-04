@@ -27,7 +27,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("display/{id}")]
+        [Route("display/{tradeId}")]
         public IActionResult GetTradeById(int tradeId)
         {
             _logger.LogInformation("Trade with id {tradeId} requested", tradeId);
@@ -56,7 +56,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPut]
-        [Route("update/{id}")]
+        [Route("update/{tradeId}")]
         [Authorize(Roles = "Admin")]
         public IActionResult UpdateTrade(int tradeId, [FromBody] TradeModelUpdate tradeModelUpdate)
         {
@@ -75,7 +75,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("deletion/{id}")]
+        [Route("deletion/{tradeId}")]
         [Authorize(Roles = "Admin")]
         public IActionResult DeleteTrade(int tradeId)
         {

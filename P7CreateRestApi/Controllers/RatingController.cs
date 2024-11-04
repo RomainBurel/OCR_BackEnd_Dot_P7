@@ -27,7 +27,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("display/{id}")]
+        [Route("display/{ratingId}")]
         public IActionResult GetRatingById(int ratingId)
         {
             _logger.LogInformation("Rating with id {ratingId} requested", ratingId);
@@ -56,7 +56,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPut]
-        [Route("update/{id}")]
+        [Route("update/{ratingId}")]
         [Authorize(Roles = "Admin")]
         public IActionResult UpdateRating(int ratingId, [FromBody] RatingModel ratingModel)
         {
@@ -75,7 +75,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("deletion/{id}")]
+        [Route("deletion/{ratingId}")]
         [Authorize(Roles = "Admin")]
         public IActionResult DeleteRating(int ratingId)
         {

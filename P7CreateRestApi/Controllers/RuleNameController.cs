@@ -27,7 +27,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("display/{id}")]
+        [Route("display/{ruleNameId}")]
         public IActionResult GetRuleNameById(int ruleNameId)
         {
             _logger.LogInformation("RuleName with id {ruleNameId} requested", ruleNameId);
@@ -56,7 +56,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPut]
-        [Route("update/{id}")]
+        [Route("update/{ruleNameId}")]
         [Authorize(Roles = "Admin")]
         public IActionResult UpdateRuleName(int ruleNameId, [FromBody] RuleNameModel ruleNameModel)
         {
@@ -75,7 +75,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("deletion/{id}")]
+        [Route("deletion/{ruleNameId}")]
         [Authorize(Roles = "Admin")]
         public IActionResult DeleteRuleName(int ruleNameId)
         {

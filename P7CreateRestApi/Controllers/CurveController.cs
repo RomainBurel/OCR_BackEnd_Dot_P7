@@ -27,7 +27,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("display/{id}")]
+        [Route("display/{curvePointId}")]
         public IActionResult GetCurvePointById(int curvePointId)
         {
             _logger.LogInformation("CurvePoint with id {curvePointId} requested", curvePointId);
@@ -56,7 +56,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPut]
-        [Route("update/{id}")]
+        [Route("update/{curvePointId}")]
         [Authorize(Roles = "Admin")]
         public IActionResult UpdateCurvePoint(int curvePointId, [FromBody] CurvePointModelUpdate curvePointModelUpdate)
         {
@@ -75,7 +75,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("deletion/{id}")]
+        [Route("deletion/{curvePointId}")]
         [Authorize(Roles = "Admin")]
         public IActionResult DeleteCurvePoint(int curvePointId)
         {

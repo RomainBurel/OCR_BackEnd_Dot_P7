@@ -27,7 +27,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("display/{id}")]
+        [Route("display/{bidListId}")]
         public IActionResult GetBidListById(int bidListId)
         {
             _logger.LogInformation("BidList with id {bidListId} requested", bidListId);
@@ -44,7 +44,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPost]
-        [Route("creation/{id}")]
+        [Route("creation")]
         [Authorize(Roles = "Admin")]
         public IActionResult AddBidList([FromBody] BidListModelAdd bidListModel)
         {
@@ -56,7 +56,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPut]
-        [Route("update/{id}")]
+        [Route("update/{bidListId}")]
         [Authorize(Roles = "Admin")]
         public IActionResult UpdateBidList(int bidListId, [FromBody] BidListModelUpdate bidListModelUpdate)
         {
@@ -75,7 +75,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("deletion/{id}")]
+        [Route("deletion/{bidListId}")]
         [Authorize(Roles = "Admin")]
         public IActionResult DeleteBidList(int bidListId)
         {
