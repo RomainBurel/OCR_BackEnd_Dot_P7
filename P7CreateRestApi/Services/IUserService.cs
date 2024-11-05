@@ -1,4 +1,5 @@
 ﻿using P7CreateRestApi.Models;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace P7CreateRestApi.Services
 {
@@ -13,5 +14,7 @@ namespace P7CreateRestApi.Services
         public void Update(UserModel model);
 
         public void Delete(UserModel model);
+
+        public Task<JwtSecurityToken> GetUserLoginToken(LoginModel loginModel);
     }
 }
