@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Models;
 using P7CreateRestApi.Services;
 
 namespace Dot.Net.WebApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class RuleNameController : ControllerBase
@@ -26,7 +28,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("display/{id}")]
+        [Route("display/{ruleNameId}")]
         public IActionResult GetRuleNameById(int ruleNameId)
         {
             _logger.LogInformation("RuleName with id {ruleNameId} requested", ruleNameId);
@@ -44,6 +46,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPost]
         [Route("creation")]
+        [Authorize(Roles = "Admin")]
         public IActionResult AddRuleName([FromBody] RuleNameModelAdd ruleNameModel)
         {
             _logger.LogInformation("RuleName add requested");
@@ -54,7 +57,8 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPut]
-        [Route("update/{id}")]
+        [Route("update/{ruleNameId}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpdateRuleName(int ruleNameId, [FromBody] RuleNameModel ruleNameModel)
         {
             _logger.LogInformation("RuleName update requested");
@@ -72,7 +76,8 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("deletion/{id}")]
+        [Route("deletion/{ruleNameId}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteRuleName(int ruleNameId)
         {
             _logger.LogInformation("RuleName delete requested");

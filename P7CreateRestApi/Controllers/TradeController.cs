@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Models;
 using P7CreateRestApi.Services;
 
 namespace Dot.Net.WebApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class TradeController : ControllerBase
@@ -26,7 +28,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("display/{id}")]
+        [Route("display/{tradeId}")]
         public IActionResult GetTradeById(int tradeId)
         {
             _logger.LogInformation("Trade with id {tradeId} requested", tradeId);
@@ -44,6 +46,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPost]
         [Route("creation")]
+        [Authorize(Roles = "Admin")]
         public IActionResult AddTrade([FromBody] TradeModelAdd tradeModel)
         {
             _logger.LogInformation("Trade add requested");
@@ -54,7 +57,8 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPut]
-        [Route("update/{id}")]
+        [Route("update/{tradeId}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpdateTrade(int tradeId, [FromBody] TradeModelUpdate tradeModelUpdate)
         {
             _logger.LogInformation("Trade update requested");
@@ -72,7 +76,8 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("deletion/{id}")]
+        [Route("deletion/{tradeId}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteTrade(int tradeId)
         {
             _logger.LogInformation("Trade delete requested");

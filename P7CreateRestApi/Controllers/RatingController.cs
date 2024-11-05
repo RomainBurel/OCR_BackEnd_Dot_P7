@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Models;
 using P7CreateRestApi.Services;
 
 namespace Dot.Net.WebApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class RatingController : ControllerBase
@@ -26,7 +28,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("display/{id}")]
+        [Route("display/{ratingId}")]
         public IActionResult GetRatingById(int ratingId)
         {
             _logger.LogInformation("Rating with id {ratingId} requested", ratingId);
@@ -44,6 +46,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPost]
         [Route("creation")]
+        [Authorize(Roles = "Admin")]
         public IActionResult AddRating([FromBody] RatingModelAdd ratingModel)
         {
             _logger.LogInformation("Rating add requested");
@@ -54,7 +57,8 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPut]
-        [Route("update/{id}")]
+        [Route("update/{ratingId}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpdateRating(int ratingId, [FromBody] RatingModel ratingModel)
         {
             _logger.LogInformation("Rating update requested");
@@ -72,7 +76,8 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("deletion/{id}")]
+        [Route("deletion/{ratingId}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteRating(int ratingId)
         {
             _logger.LogInformation("Rating delete requested");
