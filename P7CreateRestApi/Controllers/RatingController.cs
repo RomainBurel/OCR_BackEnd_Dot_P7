@@ -5,6 +5,7 @@ using P7CreateRestApi.Services;
 
 namespace Dot.Net.WebApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class RatingController : ControllerBase

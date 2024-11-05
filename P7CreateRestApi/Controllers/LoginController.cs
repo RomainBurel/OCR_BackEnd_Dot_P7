@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Models;
 using P7CreateRestApi.Services;
@@ -18,6 +19,7 @@ namespace Dot.Net.WebApi.Controllers
             _logger = logger;
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
