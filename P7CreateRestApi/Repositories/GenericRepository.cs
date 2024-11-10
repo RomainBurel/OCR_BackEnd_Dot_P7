@@ -1,13 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Dot.Net.WebApi.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace P7CreateRestApi.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        protected readonly DbContext _context;
+        protected readonly LocalDbContext _context;
         protected readonly DbSet<T> _dbSet;
 
-        public GenericRepository(DbContext context)
+        public GenericRepository(LocalDbContext context)
         {
             this._context = context;
             this._dbSet = _context.Set<T>();
@@ -21,6 +22,11 @@ namespace P7CreateRestApi.Repositories
         public T GetById(int id)
         {
             return this._dbSet.Find(id);
+        }
+
+        public bool Exists(int id)
+        {
+            return this._dbSet.Find(id) != null;
         }
 
         public void Add(T entity)

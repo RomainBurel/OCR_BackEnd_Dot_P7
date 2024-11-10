@@ -24,19 +24,24 @@ namespace P7CreateRestApi.Services
             return rating != null ? this.GetModelFromData(rating) : null;
         }
 
+        public bool Exists(int id)
+        {
+            return this._ratingRepository.Exists(id);
+        }
+
         public void Add(RatingModelAdd modelAdd)
         {
             this._ratingRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(RatingModel model, RatingModelUpdate modelUpdate)
+        public void Update(int id, RatingModelUpdate modelUpdate)
         {
-            this._ratingRepository.Update(this.GetDataFromModelUpdate(model, modelUpdate));
+            this._ratingRepository.Update(this.GetDataFromModelUpdate(id, modelUpdate));
         }
 
-        public void Delete(RatingModel model)
+        public void Delete(int id)
         {
-            this._ratingRepository.Remove(this.GetDataFromModel(model));
+            this._ratingRepository.Remove(this._ratingRepository.GetById(id));
         }
 
         private RatingModel GetModelFromData(Rating rating)
@@ -62,26 +67,14 @@ namespace P7CreateRestApi.Services
             };
         }
 
-        private Rating GetDataFromModelUpdate(RatingModel model, RatingModelUpdate modelUpdate)
+        private Rating GetDataFromModelUpdate(int id, RatingModelUpdate modelUpdate)
         {
-            var ratingModel = GetDataFromModel(model);
-            ratingModel.MoodysRating = model.MoodysRating;
-            ratingModel.SandPRating = model.SandPRating;
-            ratingModel.FitchRating = model.FitchRating;
-            ratingModel.OrderNumber = model.OrderNumber;
+            var ratingModel = this._ratingRepository.GetById(id);
+            ratingModel.MoodysRating = modelUpdate.MoodysRating;
+            ratingModel.SandPRating = modelUpdate.SandPRating;
+            ratingModel.FitchRating = modelUpdate.FitchRating;
+            ratingModel.OrderNumber = modelUpdate.OrderNumber;
             return ratingModel;
-        }
-
-        private Rating GetDataFromModel(RatingModel model)
-        {
-            return new Rating()
-            {
-                Id = model.Id,
-                MoodysRating = model.MoodysRating,
-                SandPRating = model.SandPRating,
-                FitchRating = model.FitchRating,
-                OrderNumber = model.OrderNumber
-            };
         }
     }
 }

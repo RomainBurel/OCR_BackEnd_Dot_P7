@@ -24,19 +24,24 @@ namespace P7CreateRestApi.Services
             return bidList != null ? this.GetModelFromData(bidList) : null;
         }
 
+        public bool Exists(int id)
+        {
+            return this._bidListRepository.Exists(id);
+        }
+
         public void Add(BidListModelAdd modelAdd)
         {
             this._bidListRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(BidListModel model, BidListModelUpdate modelUpdate)
+        public void Update(int id, BidListModelUpdate modelUpdate)
         {
-            this._bidListRepository.Update(this.GetDataFromModelUpdate(model, modelUpdate));
+            this._bidListRepository.Update(this.GetDataFromModelUpdate(id, modelUpdate));
         }
 
-        public void Delete(BidListModel model)
+        public void Delete(int id)
         {
-            this._bidListRepository.Remove(this.GetDataFromModel(model));
+            this._bidListRepository.Remove(this._bidListRepository.GetById(id));
         }
 
         private BidListModel GetModelFromData(BidList bidList)
@@ -94,9 +99,9 @@ namespace P7CreateRestApi.Services
             };
         }
 
-        private BidList GetDataFromModelUpdate(BidListModel model, BidListModelUpdate modelUpdate)
+        private BidList GetDataFromModelUpdate(int id, BidListModelUpdate modelUpdate)
         {
-            var bidList = this.GetDataFromModel(model);
+            var bidList = this._bidListRepository.GetById(id);
             bidList.Account = modelUpdate.Account;
             bidList.BidType = modelUpdate.BidType;
             bidList.BidQuantity = modelUpdate.BidQuantity;
@@ -117,35 +122,6 @@ namespace P7CreateRestApi.Services
             bidList.SourceListId = modelUpdate.SourceListId;
             bidList.Side = modelUpdate.Side;
             return bidList;
-        }
-
-        private BidList GetDataFromModel(BidListModel model)
-        {
-            return new BidList()
-            {
-                BidListId = model.BidListId,
-                Account = model.Account,
-                BidType = model.BidType,
-                BidQuantity = model.BidQuantity,
-                AskQuantity = model.AskQuantity,
-                Bid = model.Bid,
-                Ask = model.Ask,
-                Benchmark = model.Benchmark,
-                BidListDate = model.BidListDate,
-                Commentary = model.Commentary,
-                BidSecurity = model.BidSecurity,
-                BidStatus = model.BidStatus,
-                Trader = model.Trader,
-                Book = model.Book,
-                CreationName = model.CreationName,
-                CreationDate = model.CreationDate,
-                RevisionName = model.RevisionName,
-                RevisionDate = model.RevisionDate,
-                DealName = model.DealName,
-                DealType = model.DealType,
-                SourceListId = model.SourceListId,
-                Side = model.Side
-            };
         }
     }
 }

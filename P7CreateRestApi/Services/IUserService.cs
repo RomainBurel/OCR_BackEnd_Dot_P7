@@ -9,11 +9,13 @@ namespace P7CreateRestApi.Services
 
         public UserModel? GetById(int id);
 
+        public bool Exists(int id);
+
         public void Add(UserModelAdd modelAdd);
 
-        public void Update(UserModel model, UserModelUpdate modelUpdate);
+        public void Update(int id, UserModelUpdate modelUpdate);
 
-        public void Delete(UserModel model);
+        public void Delete(int id);
 
         public Task<JwtSecurityToken> GetUserLoginToken(LoginModel loginModel);
     }

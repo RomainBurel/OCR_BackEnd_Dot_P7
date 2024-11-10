@@ -24,19 +24,24 @@ namespace P7CreateRestApi.Services
             return trade != null ? this.GetModelFromData(trade) : null;
         }
 
+        public bool Exists(int id)
+        {
+            return this._tradeRepository.Exists(id);
+        }
+
         public void Add(TradeModelAdd modelAdd)
         {
             this._tradeRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(TradeModel model, TradeModelUpdate modelUpdate)
+        public void Update(int id, TradeModelUpdate modelUpdate)
         {
-            this._tradeRepository.Update(this.GetDataFromModelUpdate(model, modelUpdate));
+            this._tradeRepository.Update(this.GetDataFromModelUpdate(id, modelUpdate));
         }
 
-        public void Delete(TradeModel model)
+        public void Delete(int id)
         {
-            this._tradeRepository.Remove(this.GetDataFromModel(model));
+            this._tradeRepository.Remove(this._tradeRepository.GetById(id));
         }
 
         private TradeModel GetModelFromData(Trade trade)
@@ -92,9 +97,9 @@ namespace P7CreateRestApi.Services
             };
         }
 
-        private Trade GetDataFromModelUpdate(TradeModel model, TradeModelUpdate modelUpdate)
+        private Trade GetDataFromModelUpdate(int id, TradeModelUpdate modelUpdate)
         {
-            var trade = this.GetDataFromModel(model);
+            var trade = this._tradeRepository.GetById(id);
             trade.Account = modelUpdate.Account;
             trade.AccountType = modelUpdate.AccountType;
             trade.BuyQuantity = modelUpdate.BuyQuantity;
@@ -114,34 +119,6 @@ namespace P7CreateRestApi.Services
             trade.SourceListId = modelUpdate.SourceListId;
             trade.Side = modelUpdate.Side;
             return trade;
-        }
-
-        private Trade GetDataFromModel(TradeModel model)
-        {
-            return new Trade()
-            {
-                TradeId = model.TradeId,
-                Account = model.Account,
-                AccountType = model.AccountType,
-                BuyQuantity = model.BuyQuantity,
-                SellQuantity = model.SellQuantity,
-                BuyPrice = model.BuyPrice,
-                SellPrice = model.SellPrice,
-                TradeDate = model.TradeDate,
-                TradeSecurity = model.TradeSecurity,
-                TradeStatus = model.TradeStatus,
-                Trader = model.Trader,
-                Benchmark = model.Benchmark,
-                Book = model.Book,
-                CreationName = model.CreationName,
-                CreationDate = model.CreationDate,
-                RevisionName = model.RevisionName,
-                RevisionDate = model.RevisionDate,
-                DealName = model.DealName,
-                DealType = model.DealType,
-                SourceListId = model.SourceListId,
-                Side = model.Side
-            };
         }
     }
 }

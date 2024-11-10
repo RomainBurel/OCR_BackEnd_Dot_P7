@@ -24,19 +24,24 @@ namespace P7CreateRestApi.Services
             return ruleName != null ? this.GetModelFromData(ruleName) : null;
         }
 
+        public bool Exists(int id)
+        {
+            return this._ruleNameRepository.Exists(id);
+        }
+
         public void Add(RuleNameModelAdd modelAdd)
         {
             this._ruleNameRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(RuleNameModel model, RuleNameModelUpdate modelUpdate)
+        public void Update(int id, RuleNameModelUpdate modelUpdate)
         {
-            this._ruleNameRepository.Update(this.GetDataFromModelUpdate(model, modelUpdate));
+            this._ruleNameRepository.Update(this.GetDataFromModelUpdate(id, modelUpdate));
         }
 
-        public void Delete(RuleNameModel model)
+        public void Delete(int id)
         {
-            this._ruleNameRepository.Remove(this.GetDataFromModel(model));
+            this._ruleNameRepository.Remove(this._ruleNameRepository.GetById(id));
         }
 
         private RuleNameModel GetModelFromData(RuleName ruleName)
@@ -66,30 +71,16 @@ namespace P7CreateRestApi.Services
             };
         }
 
-        private RuleName GetDataFromModelUpdate(RuleNameModel model, RuleNameModelUpdate modelUpdate)
+        private RuleName GetDataFromModelUpdate(int id, RuleNameModelUpdate modelUpdate)
         {
-            var ruleName = this.GetDataFromModel(model);
-            ruleName.Name = model.Name;
-            ruleName.Description = model.Description;
-            ruleName.Json = model.Json;
-            ruleName.Template = model.Template;
-            ruleName.SqlStr = model.SqlStr;
-            ruleName.SqlPart = model.SqlPart;
+            var ruleName = this._ruleNameRepository.GetById(id);
+            ruleName.Name = modelUpdate.Name;
+            ruleName.Description = modelUpdate.Description;
+            ruleName.Json = modelUpdate.Json;
+            ruleName.Template = modelUpdate.Template;
+            ruleName.SqlStr = modelUpdate.SqlStr;
+            ruleName.SqlPart = modelUpdate.SqlPart;
             return ruleName;
-        }
-
-        private RuleName GetDataFromModel(RuleNameModel model)
-        {
-            return new RuleName()
-            {
-                Id = model.Id,
-                Name = model.Name,
-                Description = model.Description,
-                Json = model.Json,
-                Template = model.Template,
-                SqlStr = model.SqlStr,
-                SqlPart = model.SqlPart
-            };
         }
     }
 }

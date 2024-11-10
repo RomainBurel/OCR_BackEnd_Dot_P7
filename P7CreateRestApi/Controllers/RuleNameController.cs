@@ -1,3 +1,4 @@
+using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Models;
@@ -63,14 +64,13 @@ namespace Dot.Net.WebApi.Controllers
         {
             _logger.LogInformation("RuleName update requested");
 
-            var existingRuleNameModel = _ruleNameService.GetById(ruleNameId);
-            if (existingRuleNameModel == null)
+            if (!this._ruleNameService.Exists(ruleNameId))
             {
                 _logger.LogWarning("RuleName with id {ruleNameId} not found for update", ruleNameModelUpdate);
                 return NotFound($"RuleName with id {ruleNameId} not found for update");
             }
 
-            _ruleNameService.Update(existingRuleNameModel, ruleNameModelUpdate);
+            _ruleNameService.Update(ruleNameId, ruleNameModelUpdate);
             _logger.LogInformation("RuleName update successfull");
             return Ok();
         }
@@ -82,14 +82,13 @@ namespace Dot.Net.WebApi.Controllers
         {
             _logger.LogInformation("RuleName delete requested");
 
-            var ruleNameModel = _ruleNameService.GetById(ruleNameId);
-            if (ruleNameModel == null)
+            if (!this._ruleNameService.Exists(ruleNameId))
             {
                 _logger.LogWarning("RuleName with id {ruleNameId} not found for deletion", ruleNameId);
                 return NotFound($"RuleName with id {ruleNameId} not found for deletion");
             }
 
-            _ruleNameService.Delete(ruleNameModel);
+            _ruleNameService.Delete(ruleNameId);
             _logger.LogInformation("RuleName delete successfull");
             return Ok();
         }

@@ -81,8 +81,7 @@ namespace P7CreateTestApi.Test.UnitsTests
             var curvePointUpdated = new CurvePointModelUpdate { Term = 3.2, CurvePointValue = 3.1 };
 
             // Act
-            var curvePointModel = _curvePointService.GetById(1);
-            _curvePointService.Update(curvePointModel, curvePointUpdated);
+            _curvePointService.Update(1, curvePointUpdated);
 
             // Assert
             _mockRepository.Verify(repo => repo.Update(It.Is<CurvePoint>(b => b.Term == 3.2 && b.CurvePointValue == 3.1)), Times.Once);
@@ -97,7 +96,7 @@ namespace P7CreateTestApi.Test.UnitsTests
 
             // Act
             var curvePointModel = _curvePointService.GetById(1);
-            _curvePointService.Delete(curvePointModel);
+            _curvePointService.Delete(1);
 
             // Assert
             _mockRepository.Verify(repo => repo.Remove(It.Is<CurvePoint>(b => b.Id == 1)), Times.Once);

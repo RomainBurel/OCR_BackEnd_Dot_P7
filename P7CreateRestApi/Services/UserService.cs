@@ -33,19 +33,24 @@ namespace P7CreateRestApi.Services
             return user != null ? this.GetModelFromData(user) : null;
         }
 
+        public bool Exists(int id)
+        {
+            return this._userRepository.Exists(id);
+        }
+
         public void Add(UserModelAdd modelAdd)
         {
             this._userRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(UserModel model, UserModelUpdate modelUpdate)
+        public void Update(int id, UserModelUpdate modelUpdate)
         {
-            this._userRepository.Update(this.GetDataFromModelUpdate(model, modelUpdate));
+            this._userRepository.Update(this.GetDataFromModelUpdate(id, modelUpdate));
         }
 
-        public void Delete(UserModel model)
+        public void Delete(int id)
         {
-            this._userRepository.Remove(this.GetDataFromModel(model));
+            this._userRepository.Remove(this._userRepository.GetById(id));
         }
 
         public async Task<JwtSecurityToken> GetUserLoginToken(LoginModel loginModel)
@@ -105,22 +110,12 @@ namespace P7CreateRestApi.Services
             };
         }
 
-        private User GetDataFromModelUpdate(UserModel model, UserModelUpdate modelUpdate)
+        private User GetDataFromModelUpdate(int id, UserModelUpdate modelUpdate)
         {
-            var user = GetDataFromModel(model);
-            user.UserName = model.UserName;
-            user.FullName = model.FullName;
+            var user = this._userRepository.GetById(id);
+            user.UserName = modelUpdate.UserName;
+            user.FullName = modelUpdate.FullName;
             return user;
-        }
-
-        private User GetDataFromModel(UserModel model)
-        {
-            return new User()
-            {
-                Id = model.Id,
-                UserName = model.UserName,
-                FullName = model.FullName
-            };
         }
     }
 }

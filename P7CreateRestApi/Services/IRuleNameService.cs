@@ -8,10 +8,12 @@ namespace P7CreateRestApi.Services
 
         public RuleNameModel? GetById(int id);
 
+        public bool Exists(int id);
+
         public void Add(RuleNameModelAdd modelAdd);
 
-        public void Update(RuleNameModel model, RuleNameModelUpdate modelUpdate);
+        public void Update(int id, RuleNameModelUpdate modelUpdate);
 
-        public void Delete(RuleNameModel model);
+        public void Delete(int id);
     }
 }

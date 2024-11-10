@@ -16,11 +16,9 @@ ConfigurationManager configuration = builder.Configuration;
 
 builder.Services.AddControllers();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    //options.SwaggerDoc("v1", new OpenApiInfo { Title = ".NET Core 6 ", Version = "v1" });
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         BearerFormat = "JWT",
@@ -65,7 +63,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    //options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
     options.SaveToken = true;
@@ -103,7 +101,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-//app.MapSwagger().RequireAuthorization();
+app.MapSwagger().RequireAuthorization();
 
 using (var scope = app.Services.CreateScope())
 {

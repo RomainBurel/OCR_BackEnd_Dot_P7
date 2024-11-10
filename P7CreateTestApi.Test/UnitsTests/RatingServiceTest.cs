@@ -78,14 +78,13 @@ namespace P7CreateTestApi.Test.UnitsTests
             // Arrange
             _mockRepository.Setup(repo => repo.GetById(1)).Returns(GetRating()[0]);
             _mockRepository.Setup(repo => repo.Update(It.IsAny<Rating>()));
+            var ratingUpdated = new RatingModelUpdate { MoodysRating = "MoodysUpdated" };
 
             // Act
-            var ratingModel = _ratingService.GetById(1);
-            ratingModel.MoodysRating = "MoodysUpdated";
-            _ratingService.Update(ratingModel);
+            _ratingService.Update(1, ratingUpdated);
 
             // Assert
-            _mockRepository.Verify(repo => repo.Update(It.Is<Rating>(b => b.MoodysRating == "MoodysNew")), Times.Once);
+            _mockRepository.Verify(repo => repo.Update(It.Is<Rating>(b => b.MoodysRating == "MoodysUpdated")), Times.Once);
         }
 
         [Fact]
@@ -97,7 +96,7 @@ namespace P7CreateTestApi.Test.UnitsTests
 
             // Act
             var ratingModel = _ratingService.GetById(1);
-            _ratingService.Delete(ratingModel);
+            _ratingService.Delete(1);
 
             // Assert
             _mockRepository.Verify(repo => repo.Remove(It.Is<Rating>(b => b.Id == 1)), Times.Once);

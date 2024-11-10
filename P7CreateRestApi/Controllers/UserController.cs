@@ -63,14 +63,13 @@ namespace Dot.Net.WebApi.Controllers
         {
             _logger.LogInformation("User update requested");
 
-            var existingUserModel = _userService.GetById(userId);
-            if (existingUserModel == null)
+            if (!this._userService.Exists(userId))
             {
                 _logger.LogWarning("User with id {userId} not found for update", userModelUpdate);
                 return NotFound($"User with id {userId} not found for update");
             }
 
-            _userService.Update(existingUserModel, userModelUpdate);
+            _userService.Update(userId, userModelUpdate);
             _logger.LogInformation("User update successfull");
             return Ok();
         }
@@ -82,14 +81,13 @@ namespace Dot.Net.WebApi.Controllers
         {
             _logger.LogInformation("User delete requested");
 
-            var userModel = _userService.GetById(userId);
-            if (userModel == null)
+            if (!this._userService.Exists(userId))
             {
                 _logger.LogWarning("User with id {userId} not found for deletion", userId);
                 return NotFound($"User with id {userId} not found for deletion");
             }
 
-            _userService.Delete(userModel);
+            _userService.Delete(userId);
             _logger.LogInformation("User delete successfull");
             return Ok();
         }

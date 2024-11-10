@@ -1,11 +1,11 @@
-﻿using Dot.Net.WebApi.Domain;
-using Microsoft.EntityFrameworkCore;
+﻿using Dot.Net.WebApi.Data;
+using Dot.Net.WebApi.Domain;
 
 namespace P7CreateRestApi.Repositories
 {
     public class BidListRepository : GenericRepository<BidList>, IBidListRepository
     {
-        public BidListRepository(DbContext context) : base(context)
+        public BidListRepository(LocalDbContext context) : base(context)
         {
         }
     }

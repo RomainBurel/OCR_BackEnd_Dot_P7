@@ -81,8 +81,7 @@ namespace P7CreateTestApi.Test.UnitsTests
             var bidListUpdated = new BidListModelUpdate { Account = "UpdatedAccount", BidType = "UpdatedType" };
 
             // Act
-            var bidListModel = _bidListService.GetById(1);
-            _bidListService.Update(bidListModel, bidListUpdated);
+            _bidListService.Update(1, bidListUpdated);
 
             // Assert
             _mockRepository.Verify(repo => repo.Update(It.Is<BidList>(b => b.Account == "UpdatedAccount" && b.BidType == "UpdatedType")), Times.Once);
@@ -97,7 +96,7 @@ namespace P7CreateTestApi.Test.UnitsTests
 
             // Act
             var bidListModel = _bidListService.GetById(1);
-            _bidListService.Delete(bidListModel);
+            _bidListService.Delete(1);
 
             // Assert
             _mockRepository.Verify(repo => repo.Remove(It.Is<BidList>(b => b.Account == "Client1")), Times.Once);

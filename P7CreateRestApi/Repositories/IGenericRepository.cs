@@ -4,6 +4,8 @@
     {
         public T GetById(int id);
 
+        public bool Exists(int id);
+
         public IEnumerable<T> GetAll();
 
         public void Add(T entity);

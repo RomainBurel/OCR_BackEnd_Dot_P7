@@ -63,14 +63,13 @@ namespace Dot.Net.WebApi.Controllers
         {
             _logger.LogInformation("BidList update requested");
 
-            var existingBidListModel = _bidListService.GetById(bidListId);
-            if (existingBidListModel == null)
+            if (!_bidListService.Exists(bidListId))
             {
                 _logger.LogWarning("BidList with id {bidListId} not found for update", bidListModelUpdate);
                 return NotFound($"BidList with id {bidListId} not found for update");
             }
 
-            _bidListService.Update(existingBidListModel, bidListModelUpdate);
+            _bidListService.Update(bidListId, bidListModelUpdate);
             _logger.LogInformation("BidList update successfull");
             return Ok();
         }
@@ -82,14 +81,13 @@ namespace Dot.Net.WebApi.Controllers
         {
             _logger.LogInformation("BidList delete requested");
 
-            var bidListModel = _bidListService.GetById(bidListId);
-            if (bidListModel == null)
+            if (!this._bidListService.Exists(bidListId))
             {
                 _logger.LogWarning("BidList with id {bidListId} not found for deletion", bidListId);
                 return NotFound($"BidList with id {bidListId} not found for deletion");
             }
 
-            _bidListService.Delete(bidListModel);
+            _bidListService.Delete(bidListId);
             _logger.LogInformation("BidList delete successfull");
             return Ok();
         }
