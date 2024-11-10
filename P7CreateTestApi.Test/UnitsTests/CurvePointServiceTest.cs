@@ -38,10 +38,10 @@ namespace P7CreateTestApi.Test.UnitsTests
 
             // Assert
             Assert.Equal(4, result.Count());
-            Assert.Contains(result, b => b.Id == 1 && b.Term == 1.0);
-            Assert.Contains(result, b => b.Id == 2 && b.Term == 1.2);
-            Assert.Contains(result, b => b.Id == 3 && b.Term == 1.4);
-            Assert.Contains(result, b => b.Id == 4 && b.Term == 1.6);
+            Assert.Contains(result, c =>c.Id == 1 && c.Term == 1.0);
+            Assert.Contains(result, c =>c.Id == 2 && c.Term == 1.2);
+            Assert.Contains(result, c =>c.Id == 3 && c.Term == 1.4);
+            Assert.Contains(result, c =>c.Id == 4 && c.Term == 1.6);
         }
 
         [Fact]
@@ -69,7 +69,7 @@ namespace P7CreateTestApi.Test.UnitsTests
             _curvePointService.Add(newCurvePointModel);
 
             // Assert
-            _mockRepository.Verify(repo => repo.Add(It.Is<CurvePoint>(b => b.Term == 3.2 && b.CurvePointValue == 3.1)), Times.Once);
+            _mockRepository.Verify(repo => repo.Add(It.Is<CurvePoint>(c =>c.Term == 3.2 && c.CurvePointValue == 3.1)), Times.Once);
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace P7CreateTestApi.Test.UnitsTests
             _curvePointService.Update(1, curvePointUpdated);
 
             // Assert
-            _mockRepository.Verify(repo => repo.Update(It.Is<CurvePoint>(b => b.Term == 3.2 && b.CurvePointValue == 3.1)), Times.Once);
+            _mockRepository.Verify(repo => repo.Update(It.Is<CurvePoint>(c =>c.Term == 3.2 && c.CurvePointValue == 3.1)), Times.Once);
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace P7CreateTestApi.Test.UnitsTests
             _curvePointService.Delete(1);
 
             // Assert
-            _mockRepository.Verify(repo => repo.Remove(It.Is<CurvePoint>(b => b.Id == 1)), Times.Once);
+            _mockRepository.Verify(repo => repo.Remove(It.Is<CurvePoint>(c =>c.Id == 1)), Times.Once);
         }
     }
 }

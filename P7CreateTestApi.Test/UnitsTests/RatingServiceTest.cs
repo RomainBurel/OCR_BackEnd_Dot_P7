@@ -38,10 +38,10 @@ namespace P7CreateTestApi.Test.UnitsTests
 
             // Assert
             Assert.Equal(4, result.Count());
-            Assert.Contains(result, b => b.Id == 1 && b.MoodysRating == "Moodys1");
-            Assert.Contains(result, b => b.Id == 2 && b.MoodysRating == "Moodys2");
-            Assert.Contains(result, b => b.Id == 3 && b.MoodysRating == "Moodys3");
-            Assert.Contains(result, b => b.Id == 4 && b.MoodysRating == "Moodys4");
+            Assert.Contains(result, r => r.Id == 1 && r.MoodysRating == "Moodys1");
+            Assert.Contains(result, r => r.Id == 2 && r.MoodysRating == "Moodys2");
+            Assert.Contains(result, r => r.Id == 3 && r.MoodysRating == "Moodys3");
+            Assert.Contains(result, r => r.Id == 4 && r.MoodysRating == "Moodys4");
         }
 
         [Fact]
@@ -69,7 +69,7 @@ namespace P7CreateTestApi.Test.UnitsTests
             _ratingService.Add(newRatingModel);
 
             // Assert
-            _mockRepository.Verify(repo => repo.Add(It.Is<Rating>(b => b.MoodysRating == "MoodysNew")), Times.Once);
+            _mockRepository.Verify(repo => repo.Add(It.Is<Rating>(r => r.MoodysRating == "MoodysNew")), Times.Once);
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace P7CreateTestApi.Test.UnitsTests
             _ratingService.Update(1, ratingUpdated);
 
             // Assert
-            _mockRepository.Verify(repo => repo.Update(It.Is<Rating>(b => b.MoodysRating == "MoodysUpdated")), Times.Once);
+            _mockRepository.Verify(repo => repo.Update(It.Is<Rating>(r => r.MoodysRating == "MoodysUpdated")), Times.Once);
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace P7CreateTestApi.Test.UnitsTests
             _ratingService.Delete(1);
 
             // Assert
-            _mockRepository.Verify(repo => repo.Remove(It.Is<Rating>(b => b.Id == 1)), Times.Once);
+            _mockRepository.Verify(repo => repo.Remove(It.Is<Rating>(r => r.Id == 1)), Times.Once);
         }
     }
 }
