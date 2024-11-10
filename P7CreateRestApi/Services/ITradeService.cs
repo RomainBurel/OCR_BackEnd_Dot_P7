@@ -6,7 +6,7 @@ namespace P7CreateRestApi.Services
     {
         public IEnumerable<TradeModel> GetAll();
 
-        public TradeModel GetById(int id);
+        public TradeModel? GetById(int id);
 
         public void Add(TradeModelAdd modelAdd);
 

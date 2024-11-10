@@ -18,9 +18,10 @@ namespace P7CreateRestApi.Services
             return this._curvePointRepository.GetAll().Select(b => this.GetModelFromData(b));
         }
 
-        public CurvePointModel GetById(int id)
+        public CurvePointModel? GetById(int id)
         {
-            return this.GetModelFromData(this._curvePointRepository.GetById(id));
+            var curvePoint = this._curvePointRepository.GetById(id);
+            return curvePoint != null ? this.GetModelFromData(curvePoint) : null;
         }
 
         public void Add(CurvePointModelAdd modelAdd)

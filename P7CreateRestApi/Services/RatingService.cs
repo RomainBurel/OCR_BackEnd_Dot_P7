@@ -18,9 +18,10 @@ namespace P7CreateRestApi.Services
             return this._ratingRepository.GetAll().Select(r => this.GetModelFromData(r));
         }
 
-        public RatingModel GetById(int id)
+        public RatingModel? GetById(int id)
         {
-            return this.GetModelFromData(this._ratingRepository.GetById(id));
+            var rating = this._ratingRepository.GetById(id);
+            return rating != null ? this.GetModelFromData(rating) : null;
         }
 
         public void Add(RatingModelAdd modelAdd)
@@ -28,9 +29,9 @@ namespace P7CreateRestApi.Services
             this._ratingRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(RatingModel model)
+        public void Update(RatingModel model, RatingModelUpdate modelUpdate)
         {
-            this._ratingRepository.Update(this.GetDataFromModel(model));
+            this._ratingRepository.Update(this.GetDataFromModelUpdate(model, modelUpdate));
         }
 
         public void Delete(RatingModel model)
@@ -59,6 +60,16 @@ namespace P7CreateRestApi.Services
                 FitchRating = model.FitchRating,
                 OrderNumber = model.OrderNumber
             };
+        }
+
+        private Rating GetDataFromModelUpdate(RatingModel model, RatingModelUpdate modelUpdate)
+        {
+            var ratingModel = GetDataFromModel(model);
+            ratingModel.MoodysRating = model.MoodysRating;
+            ratingModel.SandPRating = model.SandPRating;
+            ratingModel.FitchRating = model.FitchRating;
+            ratingModel.OrderNumber = model.OrderNumber;
+            return ratingModel;
         }
 
         private Rating GetDataFromModel(RatingModel model)

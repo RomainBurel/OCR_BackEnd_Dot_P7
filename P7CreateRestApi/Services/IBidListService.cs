@@ -6,7 +6,7 @@ namespace P7CreateRestApi.Services
     {
         public IEnumerable<BidListModel> GetAll();
 
-        public BidListModel GetById(int id);
+        public BidListModel? GetById(int id);
 
         public void Add(BidListModelAdd modelAdd);
 

@@ -27,9 +27,10 @@ namespace P7CreateRestApi.Services
             return this._userRepository.GetAll().Select(r => this.GetModelFromData(r));
         }
 
-        public UserModel GetById(int id)
+        public UserModel? GetById(int id)
         {
-            return this.GetModelFromData(this._userRepository.GetById(id));
+            var user = this._userRepository.GetById(id);
+            return user != null ? this.GetModelFromData(user) : null;
         }
 
         public void Add(UserModelAdd modelAdd)
@@ -37,9 +38,9 @@ namespace P7CreateRestApi.Services
             this._userRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(UserModel model)
+        public void Update(UserModel model, UserModelUpdate modelUpdate)
         {
-            this._userRepository.Update(this.GetDataFromModel(model));
+            this._userRepository.Update(this.GetDataFromModelUpdate(model, modelUpdate));
         }
 
         public void Delete(UserModel model)
@@ -52,21 +53,26 @@ namespace P7CreateRestApi.Services
             var user = await _userManager.FindByEmailAsync(loginModel.Email);
             if (user != null && await _userManager.CheckPasswordAsync(user, loginModel.Password))
             {
-                return this.GenerateJwtToken(user);
+                var roles = await _userManager.GetRolesAsync(user);
+                return this.GenerateJwtToken(user, roles);
             }
 
             return null;
         }
 
-        private JwtSecurityToken GenerateJwtToken(User user)
+        private JwtSecurityToken GenerateJwtToken(User user, IList<string> roles)
         {
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Role, user.Role) // Role in Token
             };
+
+            foreach (var userRole in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, userRole));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -86,8 +92,7 @@ namespace P7CreateRestApi.Services
             {
                 Id = user.Id,
                 UserName = user.UserName,
-                FullName = user.FullName,
-                Role = user.Role
+                FullName = user.FullName
             };
         }
 
@@ -96,9 +101,16 @@ namespace P7CreateRestApi.Services
             return new User()
             {
                 UserName = model.UserName,
-                FullName = model.FullName,
-                Role = model.Role
+                FullName = model.FullName
             };
+        }
+
+        private User GetDataFromModelUpdate(UserModel model, UserModelUpdate modelUpdate)
+        {
+            var user = GetDataFromModel(model);
+            user.UserName = model.UserName;
+            user.FullName = model.FullName;
+            return user;
         }
 
         private User GetDataFromModel(UserModel model)
@@ -107,8 +119,7 @@ namespace P7CreateRestApi.Services
             {
                 Id = model.Id,
                 UserName = model.UserName,
-                FullName = model.FullName,
-                Role = model.Role
+                FullName = model.FullName
             };
         }
     }

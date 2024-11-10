@@ -18,9 +18,10 @@ namespace P7CreateRestApi.Services
             return this._tradeRepository.GetAll().Select(r => this.GetModelFromData(r));
         }
 
-        public TradeModel GetById(int id)
+        public TradeModel? GetById(int id)
         {
-            return this.GetModelFromData(this._tradeRepository.GetById(id));
+            var trade = this._tradeRepository.GetById(id);
+            return trade != null ? this.GetModelFromData(trade) : null;
         }
 
         public void Add(TradeModelAdd modelAdd)

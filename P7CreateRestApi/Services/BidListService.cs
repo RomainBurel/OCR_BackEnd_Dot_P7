@@ -18,9 +18,10 @@ namespace P7CreateRestApi.Services
             return this._bidListRepository.GetAll().Select(b => this.GetModelFromData(b));
         }
 
-        public BidListModel GetById(int id)
+        public BidListModel? GetById(int id)
         {
-            return this.GetModelFromData(this._bidListRepository.GetById(id));
+            var bidList = this._bidListRepository.GetById(id);
+            return bidList != null ? this.GetModelFromData(bidList) : null;
         }
 
         public void Add(BidListModelAdd modelAdd)

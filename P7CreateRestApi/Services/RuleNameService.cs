@@ -18,9 +18,10 @@ namespace P7CreateRestApi.Services
             return this._ruleNameRepository.GetAll().Select(r => this.GetModelFromData(r));
         }
 
-        public RuleNameModel GetById(int id)
+        public RuleNameModel? GetById(int id)
         {
-            return this.GetModelFromData(this._ruleNameRepository.GetById(id));
+            var ruleName = this._ruleNameRepository.GetById(id);
+            return ruleName != null ? this.GetModelFromData(ruleName) : null;
         }
 
         public void Add(RuleNameModelAdd modelAdd)
@@ -28,9 +29,9 @@ namespace P7CreateRestApi.Services
             this._ruleNameRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(RuleNameModel model)
+        public void Update(RuleNameModel model, RuleNameModelUpdate modelUpdate)
         {
-            this._ruleNameRepository.Update(this.GetDataFromModel(model));
+            this._ruleNameRepository.Update(this.GetDataFromModelUpdate(model, modelUpdate));
         }
 
         public void Delete(RuleNameModel model)
@@ -63,6 +64,18 @@ namespace P7CreateRestApi.Services
                 SqlStr = model.SqlStr,
                 SqlPart = model.SqlPart
             };
+        }
+
+        private RuleName GetDataFromModelUpdate(RuleNameModel model, RuleNameModelUpdate modelUpdate)
+        {
+            var ruleName = this.GetDataFromModel(model);
+            ruleName.Name = model.Name;
+            ruleName.Description = model.Description;
+            ruleName.Json = model.Json;
+            ruleName.Template = model.Template;
+            ruleName.SqlStr = model.SqlStr;
+            ruleName.SqlPart = model.SqlPart;
+            return ruleName;
         }
 
         private RuleName GetDataFromModel(RuleNameModel model)

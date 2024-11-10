@@ -4,7 +4,7 @@ using P7CreateRestApi.Models;
 using P7CreateRestApi.Repositories;
 using P7CreateRestApi.Services;
 
-namespace P7CreateTestApi.Test
+namespace P7CreateTestApi.Test.UnitsTests
 {
     public class BidListServiceTest
     {
@@ -31,7 +31,7 @@ namespace P7CreateTestApi.Test
         public void GetAll_ShouldReturnListOfBidListModel()
         {
             // Arrange
-            _mockRepository.Setup(repo => repo.GetAll()).Returns(this.GetBidList());
+            _mockRepository.Setup(repo => repo.GetAll()).Returns(GetBidList());
 
             // Act
             var result = _bidListService.GetAll();

@@ -10,7 +10,5 @@ namespace P7CreateRestApi.Models
         public string Password { get; set; } = string.Empty;
         [Required]
         public string FullName { get; set; } = string.Empty;
-        [Required]
-        public string Role { get; set; } = string.Empty;
     }
 }

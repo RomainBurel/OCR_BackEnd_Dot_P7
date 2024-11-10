@@ -6,11 +6,11 @@ namespace P7CreateRestApi.Services
     {
         public IEnumerable<RuleNameModel> GetAll();
 
-        public RuleNameModel GetById(int id);
+        public RuleNameModel? GetById(int id);
 
         public void Add(RuleNameModelAdd modelAdd);
 
-        public void Update(RuleNameModel model);
+        public void Update(RuleNameModel model, RuleNameModelUpdate modelUpdate);
 
         public void Delete(RuleNameModel model);
     }

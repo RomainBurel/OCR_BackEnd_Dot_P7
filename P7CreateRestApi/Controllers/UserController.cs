@@ -59,18 +59,18 @@ namespace Dot.Net.WebApi.Controllers
         [HttpPut]
         [Route("update/{userId}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult UpdateUser(int userId, [FromBody] UserModel userModel)
+        public IActionResult UpdateUser(int userId, [FromBody] UserModelUpdate userModelUpdate)
         {
             _logger.LogInformation("User update requested");
 
             var existingUserModel = _userService.GetById(userId);
             if (existingUserModel == null)
             {
-                _logger.LogWarning("User with id {userId} not found for update", userModel);
+                _logger.LogWarning("User with id {userId} not found for update", userModelUpdate);
                 return NotFound($"User with id {userId} not found for update");
             }
 
-            _userService.Update(userModel);
+            _userService.Update(existingUserModel, userModelUpdate);
             _logger.LogInformation("User update successfull");
             return Ok();
         }

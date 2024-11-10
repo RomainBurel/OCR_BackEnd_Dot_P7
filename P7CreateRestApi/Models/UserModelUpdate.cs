@@ -2,10 +2,8 @@
 
 namespace P7CreateRestApi.Models
 {
-    public class UserModel
+    public class UserModelUpdate
     {
-        [Required]
-        public string Id { get; set; }
         [Required]
         public string UserName { get; set; } = string.Empty;
         [Required]

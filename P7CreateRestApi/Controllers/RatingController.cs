@@ -5,7 +5,6 @@ using P7CreateRestApi.Services;
 
 namespace Dot.Net.WebApi.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class RatingController : ControllerBase
@@ -59,18 +58,18 @@ namespace Dot.Net.WebApi.Controllers
         [HttpPut]
         [Route("update/{ratingId}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult UpdateRating(int ratingId, [FromBody] RatingModel ratingModel)
+        public IActionResult UpdateRating(int ratingId, [FromBody] RatingModelUpdate ratingModelUpdate)
         {
             _logger.LogInformation("Rating update requested");
 
             var existingRatingModel = _ratingService.GetById(ratingId);
             if (existingRatingModel == null)
             {
-                _logger.LogWarning("Rating with id {ratingId} not found for update", ratingModel);
+                _logger.LogWarning("Rating with id {ratingId} not found for update", ratingModelUpdate);
                 return NotFound($"Rating with id {ratingId} not found for update");
             }
 
-            _ratingService.Update(ratingModel);
+            _ratingService.Update(existingRatingModel, ratingModelUpdate);
             _logger.LogInformation("Rating update successfull");
             return Ok();
         }
