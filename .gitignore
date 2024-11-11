@@ -4,3 +4,6 @@
 
 /.vs
 /P7CreateRestApi/.vs
+/P7CreateTestApi.Test/bin/Debug/net6.0
+/P7CreateTestApi.Test/obj/Debug/net6.0/ref
+/P7CreateTestApi.Test/obj/Debug/net6.0/refint
