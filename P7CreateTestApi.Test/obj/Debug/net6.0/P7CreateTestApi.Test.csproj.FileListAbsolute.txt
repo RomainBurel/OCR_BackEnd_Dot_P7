@@ -1,11 +1,4 @@
 D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\bin\Debug\net6.0\CoverletSourceRootsMapping_P7CreateTestApi.Test
-D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7CreateTestApi.Test.csproj.AssemblyReference.cache
-D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\MvcTestingAppManifest.json
-D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7CreateTestApi.Test.GeneratedMSBuildEditorConfig.editorconfig
-D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7CreateTestApi.Test.AssemblyInfoInputs.cache
-D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7CreateTestApi.Test.AssemblyInfo.cs
-D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7CreateTestApi.Test.csproj.CoreCompileInputs.cache
-D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7CreateTestApi.Test.sourcelink.json
 D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\bin\Debug\net6.0\testhost.dll
 D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\bin\Debug\net6.0\P7CreateRestApi.deps.json
 D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\bin\Debug\net6.0\P7CreateRestApi.runtimeconfig.json
@@ -622,6 +615,13 @@ D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\bin\Debug\net6.0\r
 D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\bin\Debug\net6.0\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
 D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\bin\Debug\net6.0\P7CreateRestApi.dll
 D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\bin\Debug\net6.0\P7CreateRestApi.pdb
+D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7CreateTestApi.Test.csproj.AssemblyReference.cache
+D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\MvcTestingAppManifest.json
+D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7CreateTestApi.Test.GeneratedMSBuildEditorConfig.editorconfig
+D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7CreateTestApi.Test.AssemblyInfoInputs.cache
+D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7CreateTestApi.Test.AssemblyInfo.cs
+D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7CreateTestApi.Test.csproj.CoreCompileInputs.cache
+D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7CreateTestApi.Test.sourcelink.json
 D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7Create.B8C85394.Up2Date
 D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\P7CreateTestApi.Test.dll
 D:\Dev\Formations\OCM\OCR_BackEnd_Dot_P7\P7CreateTestApi.Test\obj\Debug\net6.0\refint\P7CreateTestApi.Test.dll
