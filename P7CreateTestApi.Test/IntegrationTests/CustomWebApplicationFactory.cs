@@ -70,7 +70,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             await AuthenticateUserAsync(httpClient, SeedData.USER_MAIL, SeedData.USER_PWD);
         }
 
-        public void LogoutUser(HttpClient httpClient)
+        public void Logout(HttpClient httpClient)
         {
             httpClient.DefaultRequestHeaders.Authorization = null; 
         }
