@@ -12,16 +12,19 @@ namespace P7CreateTestApi.Test.UnitsTests
     {
         private readonly Mock<IUserRepository> _mockRepository;
         private readonly Mock<UserManager<User>> _mockUserManager;
+        private readonly Mock<RoleManager<IdentityRole>> _mockRoleManager;
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly UserService _userService;
 
         public UserServiceTest()
         {
             _mockRepository = new Mock<IUserRepository>();
-            var store = new Mock<IUserStore<User>>();
-            _mockUserManager = new Mock<UserManager<User>>(store.Object, null, null, null, null, null, null, null, null);
+            var userStore = new Mock<IUserStore<User>>();
+            _mockUserManager = new Mock<UserManager<User>>(userStore.Object, null, null, null, null, null, null, null, null);
+            var roleStore = new Mock<IRoleStore<IdentityRole>>();
+            _mockRoleManager = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
             _mockConfiguration = new Mock<IConfiguration>();
-            _userService = new UserService(_mockRepository.Object, _mockUserManager.Object, _mockConfiguration.Object);
+            _userService = new UserService(_mockRepository.Object, _mockUserManager.Object, _mockRoleManager.Object, _mockConfiguration.Object);
         }
 
         private List<User> GetUser()

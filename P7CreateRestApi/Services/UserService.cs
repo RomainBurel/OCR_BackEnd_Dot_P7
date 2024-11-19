@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using P7CreateRestApi.Models;
 using P7CreateRestApi.Repositories;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -13,12 +14,14 @@ namespace P7CreateRestApi.Services
     {
         private IUserRepository _userRepository;
         private UserManager<User> _userManager;
+        private RoleManager<IdentityRole> _roleManager;
         private IConfiguration _configuration;
 
-        public UserService(IUserRepository userRepository, UserManager<User> userManager, IConfiguration configuration)
+        public UserService(IUserRepository userRepository, UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             this._userRepository = userRepository;
             this._userManager = userManager;
+            this._roleManager = roleManager;
             _configuration = configuration;
         }
 
@@ -40,7 +43,9 @@ namespace P7CreateRestApi.Services
 
         public void Add(UserModelAdd modelAdd)
         {
-            this._userRepository.Add(this.GetDataFromModelAdd(modelAdd));
+            var user = this.GetDataFromModelAdd(modelAdd);
+            this._userRepository.Add(user);
+            this._userManager.AddToRoleAsync(user, "User").GetAwaiter().GetResult();
         }
 
         public void Update(int id, UserModelUpdate modelUpdate)
