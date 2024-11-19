@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 
 namespace P7CreateTestApi.Test.IntegrationTests
 {
+    [Collection("IntegrationTests")]
     public class RatingControllerTest: GenericController<Rating>
     {
         public RatingControllerTest(CustomWebApplicationFactory<Program> factory) : base(factory)

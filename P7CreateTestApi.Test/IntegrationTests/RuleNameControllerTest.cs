@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 
 namespace P7CreateTestApi.Test.IntegrationTests
 {
+    [Collection("IntegrationTests")]
     public class RuleNameControllerTest : GenericController<RuleName>
     {
         public RuleNameControllerTest(CustomWebApplicationFactory<Program> factory) : base(factory)
