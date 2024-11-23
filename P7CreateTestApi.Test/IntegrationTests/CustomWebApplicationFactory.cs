@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using P7CreateRestApi.Models;
-using P7CreateRestApi.Repositories;
-using P7CreateRestApi.Services;
 using System.Data.Common;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -35,20 +33,6 @@ namespace P7CreateTestApi.Test.IntegrationTests
                 {
                     options.UseInMemoryDatabase($"TestDB");
                 });
-
-                services.AddScoped<IBidListRepository, BidListRepository>();
-                services.AddScoped<ICurvePointRepository, CurvePointRepository>();
-                services.AddScoped<IRatingRepository, RatingRepository>();
-                services.AddScoped<IRuleNameRepository, RuleNameRepository>();
-                services.AddScoped<ITradeRepository, TradeRepository>();
-                services.AddScoped<IUserRepository, UserRepository>();
-
-                services.AddScoped<IBidListService, BidListService>();
-                services.AddScoped<ICurvePointService, CurvePointService>();
-                services.AddScoped<IRatingService, RatingService>();
-                services.AddScoped<IRuleNameService, RuleNameService>();
-                services.AddScoped<ITradeService, TradeService>();
-                services.AddScoped<IUserService, UserService>();
 
                 var sp = services.BuildServiceProvider();
                 using (var scope = sp.CreateScope())
