@@ -87,7 +87,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var bidLists = await response.Content.ReadFromJsonAsync<List<BidListModel>>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(bidLists);
             Assert.Equal(this.GetBidList().Count, bidLists.Count);
         }
@@ -120,7 +120,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var bidList = await response.Content.ReadFromJsonAsync<BidListModel>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(bidList);
             Assert.Equal(expectedBidList.BidListId, bidList.BidListId);
             Assert.Equal(expectedBidList.Account, bidList.Account);
@@ -178,7 +178,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var bidLists = await responseAll.Content.ReadFromJsonAsync<List<BidListModel>>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(bidLists.Count, nbRecordsInit + 1);
         }
 
@@ -244,7 +244,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var bidListUpdated = await responseUpdated.Content.ReadFromJsonAsync<BidListModel>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(bidListUpdated.BidType, bidListModelUpdate.BidType);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
@@ -367,7 +367,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var response = await this._httpClient.DeleteAsync($"/BidList/deletion/{bidListToDeleteId}");
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 

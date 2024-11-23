@@ -60,7 +60,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var curvePoints = await response.Content.ReadFromJsonAsync<List<CurvePointModel>>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(curvePoints);
             Assert.Equal(this.GetCurvePoint().Count, curvePoints.Count);
         }
@@ -93,7 +93,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var curvePoint = await response.Content.ReadFromJsonAsync<CurvePointModel>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(curvePoint);
             Assert.Equal(expectedCurvePoint.Id, curvePoint.Id);
             Assert.Equal(expectedCurvePoint.CurveId, curvePoint.CurveId);
@@ -150,7 +150,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var curvePoints = await responseAll.Content.ReadFromJsonAsync<List<CurvePointModel>>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(curvePoints.Count, nbRecordsInit + 1);
         }
 
@@ -205,7 +205,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var curvePointUpdated = await responseUpdated.Content.ReadFromJsonAsync<CurvePointModel>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(curvePointUpdated.Term, curvePointModelUpdate.Term);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
@@ -295,7 +295,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var response = await this._httpClient.DeleteAsync($"/Curve/deletion/{curvePointToDeleteId}");
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 

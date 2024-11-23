@@ -61,7 +61,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var ruleNames = await response.Content.ReadFromJsonAsync<List<RuleNameModel>>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(ruleNames);
             Assert.Equal(this.GetRuleName().Count, ruleNames.Count);
         }
@@ -94,7 +94,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var ruleName = await response.Content.ReadFromJsonAsync<RuleNameModel>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(ruleName);
             Assert.Equal(expectedRuleName.Id, ruleName.Id);
             Assert.Equal(expectedRuleName.Name, ruleName.Name);
@@ -151,7 +151,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var ruleNames = await responseAll.Content.ReadFromJsonAsync<List<RuleNameModel>>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(ruleNames.Count, nbRecordsInit + 1);
         }
 
@@ -210,7 +210,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var ruleNameUpdated = await responseUpdated.Content.ReadFromJsonAsync<RuleNameModel>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(ruleNameUpdated.Name, ruleNameModelUpdate.Name);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
@@ -312,7 +312,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var response = await this._httpClient.DeleteAsync($"/RuleName/deletion/{ruleNameToDeleteId}");
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 

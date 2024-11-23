@@ -85,7 +85,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var trades = await response.Content.ReadFromJsonAsync<List<TradeModel>>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(trades);
             Assert.Equal(this.GetTrade().Count, trades.Count);
         }
@@ -118,7 +118,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var trade = await response.Content.ReadFromJsonAsync<TradeModel>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(trade);
             Assert.Equal(expectedTrade.TradeId, trade.TradeId);
         }
@@ -173,7 +173,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var trades = await responseAll.Content.ReadFromJsonAsync<List<TradeModel>>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(trades.Count, nbRecordsInit + 1);
         }
 
@@ -239,7 +239,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var tradeUpdated = await responseUpdated.Content.ReadFromJsonAsync<TradeModel>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(tradeUpdated.Account, tradeModelUpdate.Account);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
@@ -362,7 +362,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var response = await this._httpClient.DeleteAsync($"/Trade/deletion/{tradeToDeleteId}");
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 

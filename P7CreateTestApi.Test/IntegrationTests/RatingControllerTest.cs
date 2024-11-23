@@ -59,7 +59,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var ratings = await response.Content.ReadFromJsonAsync<List<RatingModel>>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(ratings);
             Assert.Equal(this.GetRating().Count, ratings.Count);
         }
@@ -92,7 +92,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var rating = await response.Content.ReadFromJsonAsync<RatingModel>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(rating);
             Assert.Equal(expectedRating.Id, rating.Id);
             Assert.Equal(expectedRating.MoodysRating, rating.MoodysRating);
@@ -151,7 +151,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var ratings = await responseAll.Content.ReadFromJsonAsync<List<RatingModel>>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(ratings.Count, nbRecordsInit + 1);
         }
 
@@ -208,7 +208,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var ratingUpdated = await responseUpdated.Content.ReadFromJsonAsync<RatingModel>();
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(ratingUpdated.FitchRating, ratingModelUpdate.FitchRating);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
@@ -304,7 +304,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             var response = await this._httpClient.DeleteAsync($"/Rating/deletion/{ratingToDeleteId}");
 
             // Assert
-            response.EnsureSuccessStatusCode();
+            Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
