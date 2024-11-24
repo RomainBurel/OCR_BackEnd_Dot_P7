@@ -4,17 +4,23 @@ namespace P7CreateRestApi.Models
 {
     public class RuleNameModelAdd
     {
-        [Required]
-        public string Name { get; set; } = string.Empty;
-        [Required]
-        public string Description { get; set; } = string.Empty;
-        [Required]
-        public string Json { get; set; } = string.Empty;
-        [Required]
-        public string Template { get; set; } = string.Empty;
-        [Required]
-        public string SqlStr { get; set; } = string.Empty;
-        [Required]
-        public string SqlPart { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Name is required.")]
+        [StringLength(255)]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "Description is required.")]
+        public string Description { get; set; }
+
+        [Required(ErrorMessage = "Json is required.")]
+        public string Json { get; set; }
+
+        [Required(ErrorMessage = "Template is required.")]
+        public string Template { get; set; }
+
+        [Required(ErrorMessage = "SqlStr is required.")]
+        public string SqlStr { get; set; }
+
+        [Required(ErrorMessage = "SqlPart is required.")]
+        public string SqlPart { get; set; }
     }
 }

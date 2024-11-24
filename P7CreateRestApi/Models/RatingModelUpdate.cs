@@ -4,12 +4,19 @@ namespace P7CreateRestApi.Models
 {
     public class RatingModelUpdate
     {
-        [Required]
+        [Required(ErrorMessage = "MoodysRating is required.")]
+        [StringLength(255)]
         public string MoodysRating { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "SandPRating is required.")]
+        [StringLength(255)]
         public string SandPRating { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "FitchRating is required.")]
+        [StringLength(255)]
         public string FitchRating { get; set; }
+
+        [Range(1, int.MaxValue, ErrorMessage = "OrderNumber must be a positive integer.")]
         public byte? OrderNumber { get; set; }
     }
 }
