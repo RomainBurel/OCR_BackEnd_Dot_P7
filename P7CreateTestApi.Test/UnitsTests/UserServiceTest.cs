@@ -58,10 +58,10 @@ namespace P7CreateTestApi.Test.UnitsTests
         public void GetById_ShouldReturnUser_WhenExists()
         {
             // Arrange
-            _mockRepository.Setup(repo => repo.GetById(1)).Returns(GetUser()[0]);
+            _mockRepository.Setup(repo => repo.GetById("1")).Returns(GetUser()[0]);
 
             // Act
-            var result = _userService.GetById(1);
+            var result = _userService.GetById("1");
 
             // Assert
             Assert.NotNull(result);
@@ -73,25 +73,28 @@ namespace P7CreateTestApi.Test.UnitsTests
         public async Task Add_ShouldCall_RepositoryAdd()
         {
             // Arrange
-            var newUserModel = new UserModelAdd { UserName = "UserNew" };
+            var newUserModel = new UserModelAdd { Email = "usernew@findexium.com", UserName = "UserNew", FullName = "UserNewFullName", Password = "UserNew123@" }; 
+            _mockUserManager.Setup(userManager => userManager.CreateAsync(It.IsAny<User>(), newUserModel.Password)).ReturnsAsync(IdentityResult.Success);
+            _mockUserManager.Setup(userManager => userManager.AddToRoleAsync(It.IsAny<User>(), "User")).ReturnsAsync(IdentityResult.Success);
 
             // Act
             _userService.Add(newUserModel);
 
             // Assert
-            _mockRepository.Verify(repo => repo.Add(It.Is<User>(u => u.UserName == "UserNew")), Times.Once);
+            _mockUserManager.Verify(userManager => userManager.CreateAsync(It.IsAny<User>(), It.IsAny<string>()), Times.Once);
+            _mockUserManager.Verify(userManager => userManager.AddToRoleAsync(It.IsAny<User>(), "User"), Times.Once);
         }
 
         [Fact]
         public void Update_ShouldCall_RepositoryUpdate()
         {
             // Arrange
-            _mockRepository.Setup(repo => repo.GetById(1)).Returns(GetUser()[0]);
+            _mockRepository.Setup(repo => repo.GetById("1")).Returns(GetUser()[0]);
             _mockRepository.Setup(repo => repo.Update(It.IsAny<User>()));
             var userUpdated = new UserModelUpdate { UserName = "UserUpdated" };
 
             // Act
-            _userService.Update(1, userUpdated);
+            _userService.Update("1", userUpdated);
 
             // Assert
             _mockRepository.Verify(repo => repo.Update(It.Is<User>(u => u.UserName == "UserUpdated")), Times.Once);
@@ -101,12 +104,12 @@ namespace P7CreateTestApi.Test.UnitsTests
         public void Delete_ShouldCall_RepositoryRemove()
         {
             // Arrange
-            _mockRepository.Setup(repo => repo.GetById(1)).Returns(GetUser()[0]);
+            _mockRepository.Setup(repo => repo.GetById("1")).Returns(GetUser()[0]);
             _mockRepository.Setup(repo => repo.Remove(It.IsAny<User>()));
 
             // Act
-            var userModel = _userService.GetById(1);
-            _userService.Delete(1);
+            var userModel = _userService.GetById("1");
+            _userService.Delete("1");
 
             // Assert
             _mockRepository.Verify(repo => repo.Remove(It.Is<User>(u => u.Id == "1")), Times.Once);

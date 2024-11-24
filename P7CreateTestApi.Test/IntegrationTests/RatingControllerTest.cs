@@ -12,7 +12,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
         }
 
-        private List<Rating> GetRating()
+        private List<Rating> GetRatings()
         {
             return new List<Rating> {
                 new Rating() { Id = 1, MoodysRating = "Moodys1", SandPRating = "Sand1", FitchRating = "Fitch1" },
@@ -29,22 +29,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
 
         private async Task SeedSampleRatingsAsync()
         {
-            await this.ClearDatabase();
-            await this._factory.LoginAsAdmin(this._httpClient);
-
-            var ratings = GetRating();
-            foreach (var rating in ratings)
-            {
-                await this._httpClient.PostAsJsonAsync("/Rating/creation", new RatingModelAdd
-                {
-                    MoodysRating = rating.MoodysRating,
-                    SandPRating = rating.SandPRating,
-                    FitchRating = rating.FitchRating,
-                    OrderNumber = rating.OrderNumber
-                });
-            }
-
-            this._factory.Logout(_httpClient);
+            await this.ClearTable();
+            await this.FillTable(this.GetRatings());
         }
 
         [Fact]
@@ -61,7 +47,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Assert
             Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(ratings);
-            Assert.Equal(this.GetRating().Count, ratings.Count);
+            Assert.Equal(this.GetRatings().Count, ratings.Count);
         }
 
         [Fact]
@@ -142,7 +128,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Arrange
             await this.SeedSampleRatingsAsync();
             await this._factory.LoginAsAdmin(this._httpClient);
-            var nbRecordsInit = this.GetRating().Count;
+            var nbRecordsInit = this.GetRatings().Count;
             var newRating = this.NewRating();
 
             // Act

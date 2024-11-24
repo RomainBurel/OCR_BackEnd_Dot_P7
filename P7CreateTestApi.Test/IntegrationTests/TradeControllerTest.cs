@@ -12,7 +12,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
         }
 
-        private List<Trade> GetTrade()
+        private List<Trade> GetTrades()
         {
             return new List<Trade> {
                 new Trade() { TradeId = 1, Account = "Account1", CreationDate = DateTime.Now, AccountType = "Current",
@@ -46,31 +46,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
 
         private async Task SeedSampleTradesAsync()
         {
-            await this.ClearDatabase();
-            await this._factory.LoginAsAdmin(this._httpClient);
-
-            var trades = GetTrade();
-            foreach (var trade in trades)
-            {
-                await this._httpClient.PostAsJsonAsync("/Trade/creation", new TradeModelAdd
-                {
-                    Account = trade.Account,
-                    AccountType = trade.AccountType,
-                    Benchmark = trade.Benchmark,
-                    TradeSecurity = trade.TradeSecurity,
-                    TradeStatus = trade.TradeStatus,
-                    Trader = trade.Trader,
-                    Book = trade.Book,
-                    CreationDate = trade.CreationDate,
-                    CreationName = trade.CreationName,
-                    DealName = trade.DealName,
-                    DealType = trade.DealType,
-                    SourceListId = trade.SourceListId,
-                    Side = trade.Side
-                });
-            }
-
-            this._factory.Logout(_httpClient);
+            await this.ClearTable();
+            await this.FillTable(this.GetTrades());
         }
 
         [Fact]
@@ -87,7 +64,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Assert
             Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(trades);
-            Assert.Equal(this.GetTrade().Count, trades.Count);
+            Assert.Equal(this.GetTrades().Count, trades.Count);
         }
 
         [Fact]
@@ -164,7 +141,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Arrange
             await this.SeedSampleTradesAsync();
             await this._factory.LoginAsAdmin(this._httpClient);
-            var nbRecordsInit = this.GetTrade().Count;
+            var nbRecordsInit = this.GetTrades().Count;
             var newTrade = this.NewTrade();
 
             // Act

@@ -12,7 +12,7 @@ namespace Dot.Net.WebApi.Data
         const string ADMIN_ROLE_NAME = "Admin";
         const string USER_ROLE_NAME = "User";
 
-        public static async Task SeedAdminUserAsync(IServiceProvider serviceProvider)
+        public static async Task SeedAdminAndSimpleUsersAsync(IServiceProvider serviceProvider)
         {
             var db = serviceProvider.GetRequiredService<LocalDbContext>();
             db.Database.EnsureCreated();
@@ -40,27 +40,37 @@ namespace Dot.Net.WebApi.Data
             }
         }
 
-        private static async Task AddUser(UserManager<User> userManager, string username, string email, string pwd, string role)
+        public static async Task AddUser(UserManager<User> userManager, string userName, string email, string pwd, string role)
         {
             var user = await userManager.FindByEmailAsync(email);
             if (user == null)
             {
                 user = new User
                 {
-                    UserName = username,
+                    UserName = userName,
                     Email = email,
-                    EmailConfirmed = true,
-                    Role = role
+                    FullName = userName,
+                    EmailConfirmed = true
                 };
 
                 var userResult = await userManager.CreateAsync(user, pwd);
 
                 if (!userResult.Succeeded)
                 {
-                    throw new Exception("Failed to create '" + username + "' user");
+                    throw new Exception("Failed to create '" + userName + "' user");
                 }
 
                 await userManager.AddToRoleAsync(user, role);
+            }
+        }
+
+        public static async Task RemoveUser(UserManager<User> userManager, string email, string role)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                await userManager.RemoveFromRoleAsync(user, role);
+                await userManager.DeleteAsync(user);
             }
         }
     }

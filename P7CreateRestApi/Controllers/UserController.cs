@@ -29,7 +29,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpGet]
         [Route("display/{userId}")]
-        public IActionResult GetUserById(int userId)
+        public IActionResult GetUserById(string userId)
         {
             _logger.LogInformation("User with id {userId} requested", userId);
             var user = this._userService.GetById(userId);
@@ -59,7 +59,7 @@ namespace Dot.Net.WebApi.Controllers
         [HttpPut]
         [Route("update/{userId}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult UpdateUser(int userId, [FromBody] UserModelUpdate userModelUpdate)
+        public IActionResult UpdateUser(string userId, [FromBody] UserModelUpdate userModelUpdate)
         {
             _logger.LogInformation("User update requested");
 
@@ -77,7 +77,7 @@ namespace Dot.Net.WebApi.Controllers
         [HttpDelete]
         [Route("deletion/{userId}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult DeleteUser(int userId)
+        public IActionResult DeleteUser(string userId)
         {
             _logger.LogInformation("User delete requested");
 

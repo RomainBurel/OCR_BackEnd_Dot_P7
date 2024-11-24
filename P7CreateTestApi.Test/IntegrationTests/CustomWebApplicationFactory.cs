@@ -37,7 +37,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
                 var sp = services.BuildServiceProvider();
                 using (var scope = sp.CreateScope())
                 {
-                    SeedData.SeedAdminUserAsync(scope.ServiceProvider).GetAwaiter().GetResult();
+                    SeedData.SeedAdminAndSimpleUsersAsync(scope.ServiceProvider).GetAwaiter().GetResult();
                 }
             });
 

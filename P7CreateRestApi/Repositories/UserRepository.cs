@@ -8,5 +8,15 @@ namespace P7CreateRestApi.Repositories
         public UserRepository(LocalDbContext context) : base(context)
         {
         }
+
+        public User GetById(string id)
+        {
+            return this._dbSet.Find(id);
+        }
+
+        public bool Exists(string id)
+        {
+            return this._dbSet.Find(id) != null;
+        }
     }
 }

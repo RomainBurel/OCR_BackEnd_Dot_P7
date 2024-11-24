@@ -7,15 +7,15 @@ namespace P7CreateRestApi.Services
     {
         public IEnumerable<UserModel> GetAll();
 
-        public UserModel? GetById(int id);
+        public UserModel? GetById(string id);
 
-        public bool Exists(int id);
+        public bool Exists(string id);
 
         public void Add(UserModelAdd modelAdd);
 
-        public void Update(int id, UserModelUpdate modelUpdate);
+        public void Update(string id, UserModelUpdate modelUpdate);
 
-        public void Delete(int id);
+        public void Delete(string id);
 
         public Task<JwtSecurityToken> GetUserLoginToken(LoginModel loginModel);
     }

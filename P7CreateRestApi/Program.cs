@@ -105,7 +105,7 @@ app.MapSwagger().RequireAuthorization();
 
 using (var scope = app.Services.CreateScope())
 {
-    await SeedData.SeedAdminUserAsync(scope.ServiceProvider);
+    await SeedData.SeedAdminAndSimpleUsersAsync(scope.ServiceProvider);
 }
 
 // Configure the HTTP request pipeline.

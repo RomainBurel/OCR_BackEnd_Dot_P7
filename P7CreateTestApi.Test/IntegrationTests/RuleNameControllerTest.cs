@@ -12,7 +12,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
         }
 
-        private List<RuleName> GetRuleName()
+        private List<RuleName> GetRuleNames()
         {
             return new List<RuleName> {
                 new RuleName() { Id = 1, Name = "Rule1", Description = "The rule 1", Json = "Json1", Template = "Template1", SqlStr = "1", SqlPart = "1" },
@@ -29,24 +29,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
 
         private async Task SeedSampleRuleNamesAsync()
         {
-            await this.ClearDatabase();
-            await this._factory.LoginAsAdmin(this._httpClient);
-
-            var ruleNames = GetRuleName();
-            foreach (var ruleName in ruleNames)
-            {
-                await this._httpClient.PostAsJsonAsync("/RuleName/creation", new RuleNameModelAdd
-                {
-                    Name = ruleName.Name,
-                    Description = ruleName.Description,
-                    Json = ruleName.Json,
-                    Template = ruleName.Template,
-                    SqlStr = ruleName.SqlStr,
-                    SqlPart = ruleName.SqlPart
-                });
-            }
-
-            this._factory.Logout(_httpClient);
+            await this.ClearTable();
+            await this.FillTable(this.GetRuleNames());
         }
 
         [Fact]
@@ -63,7 +47,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Assert
             Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(ruleNames);
-            Assert.Equal(this.GetRuleName().Count, ruleNames.Count);
+            Assert.Equal(this.GetRuleNames().Count, ruleNames.Count);
         }
 
         [Fact]
@@ -142,7 +126,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Arrange
             await this.SeedSampleRuleNamesAsync();
             await this._factory.LoginAsAdmin(this._httpClient);
-            var nbRecordsInit = this.GetRuleName().Count;
+            var nbRecordsInit = this.GetRuleNames().Count;
             var newRuleName = this.NewRuleName();
 
             // Act

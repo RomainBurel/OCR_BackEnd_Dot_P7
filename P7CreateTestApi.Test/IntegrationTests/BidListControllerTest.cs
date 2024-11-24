@@ -12,7 +12,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
         }
 
-        private List<BidList> GetBidList()
+        private List<BidList> GetBidLists()
         {
             return new List<BidList> {
                 new BidList() { BidListId = 1, Account = "Account1", CreationDate = DateTime.Now, BidType = "Current",
@@ -47,32 +47,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
 
         private async Task SeedSampleBidListsAsync()
         {
-            await this.ClearDatabase();
-            await this._factory.LoginAsAdmin(this._httpClient);
-
-            var bidLists = GetBidList();
-            foreach (var bidList in bidLists)
-            {
-                await this._httpClient.PostAsJsonAsync("/BidList/creation", new BidListModelAdd
-                {
-                    Account = bidList.Account,
-                    CreationDate = bidList.CreationDate,
-                    BidType = bidList.BidType,
-                    Benchmark = bidList.Benchmark,
-                    Commentary = bidList.Commentary,
-                    BidSecurity = bidList.BidSecurity,
-                    BidStatus = bidList.BidStatus,
-                    Trader = bidList.Trader,
-                    Book = bidList.Book,
-                    CreationName = bidList.CreationName,
-                    DealName = bidList.DealName,
-                    DealType = bidList.DealType,
-                    SourceListId= bidList.SourceListId,
-                    Side = bidList.Side
-                });
-            }
-
-            this._factory.Logout(_httpClient);
+            await this.ClearTable();
+            await this.FillTable(this.GetBidLists());
         }
 
         [Fact]
@@ -89,7 +65,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Assert
             Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(bidLists);
-            Assert.Equal(this.GetBidList().Count, bidLists.Count);
+            Assert.Equal(this.GetBidLists().Count, bidLists.Count);
         }
 
         [Fact]
@@ -169,7 +145,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Arrange
             await this.SeedSampleBidListsAsync();
             await this._factory.LoginAsAdmin(this._httpClient);
-            var nbRecordsInit = this.GetBidList().Count;
+            var nbRecordsInit = this.GetBidLists().Count;
             var newBidList = this.NewBidList();
 
             // Act

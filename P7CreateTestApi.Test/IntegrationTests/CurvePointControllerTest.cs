@@ -12,7 +12,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
         }
 
-        private List<CurvePoint> GetCurvePoint()
+        private List<CurvePoint> GetCurvePoints()
         {
             return new List<CurvePoint> {
                 new CurvePoint() { Id = 1, CurveId = 1, Term = 1.0, CreationDate = DateTime.Now, AsOfDate = DateTime.Now, CurvePointValue = 3.0 },
@@ -29,23 +29,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
 
         private async Task SeedSampleCurvePointsAsync()
         {
-            await this.ClearDatabase();
-            await this._factory.LoginAsAdmin(this._httpClient);
-
-            var curvePoints = GetCurvePoint();
-            foreach (var curvePoint in curvePoints)
-            {
-                await this._httpClient.PostAsJsonAsync("/Curve/creation", new CurvePointModelAdd
-                {
-                    CurveId = curvePoint.CurveId,
-                    Term = curvePoint.Term,
-                    CreationDate = curvePoint.CreationDate,
-                    AsOfDate = curvePoint.AsOfDate,
-                    CurvePointValue = curvePoint.CurvePointValue
-                });
-            }
-
-            this._factory.Logout(_httpClient);
+            await this.ClearTable();
+            await this.FillTable(this.GetCurvePoints());
         }
 
         [Fact]
@@ -62,7 +47,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Assert
             Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(curvePoints);
-            Assert.Equal(this.GetCurvePoint().Count, curvePoints.Count);
+            Assert.Equal(this.GetCurvePoints().Count, curvePoints.Count);
         }
 
         [Fact]
@@ -141,7 +126,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Arrange
             await this.SeedSampleCurvePointsAsync();
             await this._factory.LoginAsAdmin(this._httpClient);
-            var nbRecordsInit = this.GetCurvePoint().Count;
+            var nbRecordsInit = this.GetCurvePoints().Count;
             var newCurvePoint = this.NewCurvePoint();
 
             // Act

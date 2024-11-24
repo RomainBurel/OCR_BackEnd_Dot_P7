@@ -30,13 +30,13 @@ namespace P7CreateRestApi.Services
             return this._userRepository.GetAll().Select(r => this.GetModelFromData(r));
         }
 
-        public UserModel? GetById(int id)
+        public UserModel? GetById(string id)
         {
             var user = this._userRepository.GetById(id);
             return user != null ? this.GetModelFromData(user) : null;
         }
 
-        public bool Exists(int id)
+        public bool Exists(string id)
         {
             return this._userRepository.Exists(id);
         }
@@ -44,16 +44,22 @@ namespace P7CreateRestApi.Services
         public void Add(UserModelAdd modelAdd)
         {
             var user = this.GetDataFromModelAdd(modelAdd);
-            this._userRepository.Add(user);
+            var userResult = this._userManager.CreateAsync(user, modelAdd.Password).GetAwaiter().GetResult();
+
+            if (!userResult.Succeeded)
+            {
+                throw new Exception("Failed to create '" + modelAdd.UserName + "' user");
+            }
+
             this._userManager.AddToRoleAsync(user, "User").GetAwaiter().GetResult();
         }
 
-        public void Update(int id, UserModelUpdate modelUpdate)
+        public void Update(string id, UserModelUpdate modelUpdate)
         {
             this._userRepository.Update(this.GetDataFromModelUpdate(id, modelUpdate));
         }
 
-        public void Delete(int id)
+        public void Delete(string id)
         {
             this._userRepository.Remove(this._userRepository.GetById(id));
         }
@@ -102,6 +108,7 @@ namespace P7CreateRestApi.Services
             {
                 Id = user.Id,
                 UserName = user.UserName,
+                Email = user.Email,
                 FullName = user.FullName
             };
         }
@@ -111,14 +118,16 @@ namespace P7CreateRestApi.Services
             return new User()
             {
                 UserName = model.UserName,
-                FullName = model.FullName
+                Email = model.Email,
+                FullName = model.FullName,
             };
         }
 
-        private User GetDataFromModelUpdate(int id, UserModelUpdate modelUpdate)
+        private User GetDataFromModelUpdate(string id, UserModelUpdate modelUpdate)
         {
             var user = this._userRepository.GetById(id);
             user.UserName = modelUpdate.UserName;
+            user.Email = modelUpdate.Email;
             user.FullName = modelUpdate.FullName;
             return user;
         }
