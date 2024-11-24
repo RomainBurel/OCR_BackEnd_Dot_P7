@@ -6,7 +6,7 @@ using System.Net.Http.Json;
 namespace P7CreateTestApi.Test.IntegrationTests
 {
     [Collection("IntegrationTests")]
-    public class CurvePointControllerTest : GenericController<CurvePoint>
+    public class CurvePointControllerTest : GenericControllerTest<CurvePoint>
     {
         public CurvePointControllerTest(CustomWebApplicationFactory<Program> factory) : base(factory)
         {

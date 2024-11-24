@@ -6,7 +6,7 @@ using System.Net.Http.Json;
 namespace P7CreateTestApi.Test.IntegrationTests
 {
     [Collection("IntegrationTests")]
-    public class TradeControllerTest : GenericController<Trade>
+    public class TradeControllerTest : GenericControllerTest<Trade>
     {
         public TradeControllerTest(CustomWebApplicationFactory<Program> factory) : base(factory)
         {

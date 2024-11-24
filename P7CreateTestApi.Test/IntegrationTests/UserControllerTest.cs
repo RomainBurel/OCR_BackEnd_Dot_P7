@@ -9,7 +9,7 @@ using System.Net.Http.Json;
 namespace P7CreateTestApi.Test.IntegrationTests
 {
     [Collection("IntegrationTests")]
-    public class UserControllerTest : GenericController<User>
+    public class UserControllerTest : GenericControllerTest<User>
     {
         public UserControllerTest(CustomWebApplicationFactory<Program> factory) : base(factory)
         {

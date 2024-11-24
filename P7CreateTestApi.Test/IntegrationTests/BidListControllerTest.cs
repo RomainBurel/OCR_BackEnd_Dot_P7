@@ -6,7 +6,7 @@ using System.Net.Http.Json;
 namespace P7CreateTestApi.Test.IntegrationTests
 {
     [Collection("IntegrationTests")]
-    public class BidListControllerTest : GenericController<BidList>
+    public class BidListControllerTest : GenericControllerTest<BidList>
     {
         public BidListControllerTest(CustomWebApplicationFactory<Program> factory) : base(factory)
         {

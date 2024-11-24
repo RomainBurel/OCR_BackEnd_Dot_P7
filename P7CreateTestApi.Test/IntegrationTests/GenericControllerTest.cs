@@ -5,14 +5,14 @@ using Xunit;
 
 namespace P7CreateTestApi.Test.IntegrationTests
 {
-    public class GenericController<T> : IClassFixture<CustomWebApplicationFactory<Program>> where T : class
+    public class GenericControllerTest<T> : IClassFixture<CustomWebApplicationFactory<Program>> where T : class
     {
         private static bool TestInProgress = false;
 
         protected readonly CustomWebApplicationFactory<Program> _factory;
         protected readonly HttpClient _httpClient;
 
-        public GenericController(CustomWebApplicationFactory<Program> factory)
+        public GenericControllerTest(CustomWebApplicationFactory<Program> factory)
         {
             this._factory = factory;
             this._httpClient = factory.CreateClient(new WebApplicationFactoryClientOptions() { AllowAutoRedirect = false });
