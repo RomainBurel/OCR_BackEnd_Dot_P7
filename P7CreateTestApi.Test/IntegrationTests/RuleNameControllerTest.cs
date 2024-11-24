@@ -22,9 +22,22 @@ namespace P7CreateTestApi.Test.IntegrationTests
             };
         }
 
-        private RuleNameModelAdd NewRuleName()
+        private RuleNameModelAdd GetNewRuleNameModelAdd()
         {
             return new RuleNameModelAdd() { Name = "New Rule", Description = "The new rule", Json = "Json", Template = "Template", SqlStr = "0", SqlPart = "0" };
+        }
+
+        private RuleNameModelUpdate GetRuleNameModelToUpdate(RuleName ruleName)
+        {
+            return new RuleNameModelUpdate()
+            {
+                Name = ruleName.Name,
+                Description = ruleName.Description,
+                Json = ruleName.Json,
+                Template = ruleName.Template,
+                SqlStr = ruleName.SqlStr,
+                SqlPart = ruleName.SqlPart
+            };
         }
 
         private async Task SeedSampleRuleNamesAsync()
@@ -38,6 +51,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRuleNamesAsync();
+            var nbRecords = this.NbRecordsInTable();
             await this._factory.LoginAsUser(this._httpClient);
 
             // Act
@@ -47,7 +61,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Assert
             Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(ruleNames);
-            Assert.Equal(this.GetRuleNames().Count, ruleNames.Count);
+            Assert.Equal(nbRecords, ruleNames.Count);
         }
 
         [Fact]
@@ -68,10 +82,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRuleNamesAsync();
+            var expectedRuleName = this.GetFirstRecordInTable();
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/RuleName/list");
-            var ruleNames = await responseAll.Content.ReadFromJsonAsync<List<RuleNameModel>>();
-            var expectedRuleName = ruleNames[0];
 
             // Act
             var response = await this._httpClient.GetAsync($"/RuleName/display/{expectedRuleName.Id}");
@@ -90,10 +102,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRuleNamesAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/RuleName/list");
-            var ruleNames = await responseAll.Content.ReadFromJsonAsync<List<RuleNameModel>>();
-            var expectedRuleName = ruleNames[0];
+            var expectedRuleName = this.GetFirstRecordInTable();
             this._factory.Logout(this._httpClient);
 
             // Act
@@ -108,10 +117,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRuleNamesAsync();
+            var nonExistingRuleNameId = -1;
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/RuleName/list");
-            var ruleNames = await responseAll.Content.ReadFromJsonAsync<List<RuleNameModel>>();
-            var nonExistingRuleNameId = ruleNames.Max(r => r.Id) + 1;
 
             // Act
             var response = await this._httpClient.GetAsync($"/RuleName/display/{nonExistingRuleNameId}");
@@ -125,27 +132,25 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRuleNamesAsync();
+            var nbRecordsInit = this.NbRecordsInTable();
+            var newRuleName = this.GetNewRuleNameModelAdd();
             await this._factory.LoginAsAdmin(this._httpClient);
-            var nbRecordsInit = this.GetRuleNames().Count;
-            var newRuleName = this.NewRuleName();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/RuleName/creation", newRuleName);
-            var responseAll = await this._httpClient.GetAsync("/RuleName/list");
-            var ruleNames = await responseAll.Content.ReadFromJsonAsync<List<RuleNameModel>>();
+            var nbRecordsAfterAdd = this.NbRecordsInTable();
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
-            Assert.Equal(ruleNames.Count, nbRecordsInit + 1);
+            Assert.Equal(nbRecordsAfterAdd, nbRecordsInit + 1);
         }
 
         [Fact]
         public async Task AddRuleName_AsLoggedUser_ShouldReturn_Forbidden()
         {
             // Arrange
-            this._factory.Logout(this._httpClient);
+            var newRuleName = this.GetNewRuleNameModelAdd();
             await this._factory.LoginAsUser(this._httpClient);
-            var newRuleName = this.NewRuleName();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/RuleName/creation", newRuleName);
@@ -158,8 +163,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         public async Task AddRuleName_NoLoggedUser_ShouldReturn_Unauthorized()
         {
             // Arrange
+            var newRuleName = this.GetNewRuleNameModelAdd();
             this._factory.Logout(this._httpClient);
-            var newRuleName = this.NewRuleName();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/RuleName/creation", newRuleName);
@@ -173,25 +178,14 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRuleNamesAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/RuleName/list");
-            var ruleNames = await responseAll.Content.ReadFromJsonAsync<List<RuleNameModel>>();
-            var ruleNameToUpdate = ruleNames[0];
-            var ruleNameModelUpdate = new RuleNameModelUpdate()
-            {
-                Name = ruleNameToUpdate.Name,
-                Description = ruleNameToUpdate.Description,
-                Json = ruleNameToUpdate.Json,
-                Template = ruleNameToUpdate.Template,
-                SqlStr = ruleNameToUpdate.SqlStr,
-                SqlPart = ruleNameToUpdate.SqlPart
-            };
+            var ruleNameToUpdate = this.GetFirstRecordInTable();
+            var ruleNameModelUpdate = this.GetRuleNameModelToUpdate(ruleNameToUpdate);
             ruleNameModelUpdate.Name = "Updated rule";
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/RuleName/update/{ruleNameToUpdate.Id}", ruleNameModelUpdate);
-            var responseUpdated = await this._httpClient.GetAsync($"/RuleName/display/{ruleNameToUpdate.Id}");
-            var ruleNameUpdated = await responseUpdated.Content.ReadFromJsonAsync<RuleNameModel>();
+            var ruleNameUpdated = this.GetRecordById(ruleNameToUpdate.Id);
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
@@ -204,20 +198,10 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRuleNamesAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/RuleName/list");
-            var ruleNames = await responseAll.Content.ReadFromJsonAsync<List<RuleNameModel>>();
-            var ruleNameToUpdate = ruleNames[0];
-            var ruleNameModelUpdate = new RuleNameModelUpdate()
-            {
-                Name = ruleNameToUpdate.Name,
-                Description = ruleNameToUpdate.Description,
-                Json = ruleNameToUpdate.Json,
-                Template = ruleNameToUpdate.Template,
-                SqlStr = ruleNameToUpdate.SqlStr,
-                SqlPart = ruleNameToUpdate.SqlPart
-            };
+            var ruleNameToUpdate = this.GetFirstRecordInTable();
+            var ruleNameModelUpdate = this.GetRuleNameModelToUpdate(ruleNameToUpdate);
             ruleNameModelUpdate.Name = "Updated rule";
+            await this._factory.LoginAsUser(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/RuleName/update/{ruleNameToUpdate.Id}", ruleNameModelUpdate);
@@ -231,19 +215,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRuleNamesAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/RuleName/list");
-            var ruleNames = await responseAll.Content.ReadFromJsonAsync<List<RuleNameModel>>();
-            var ruleNameToUpdate = ruleNames[0];
-            var ruleNameModelUpdate = new RuleNameModelUpdate()
-            {
-                Name = ruleNameToUpdate.Name,
-                Description = ruleNameToUpdate.Description,
-                Json = ruleNameToUpdate.Json,
-                Template = ruleNameToUpdate.Template,
-                SqlStr = ruleNameToUpdate.SqlStr,
-                SqlPart = ruleNameToUpdate.SqlPart
-            };
+            var ruleNameToUpdate = this.GetFirstRecordInTable();
+            var ruleNameModelUpdate = this.GetRuleNameModelToUpdate(ruleNameToUpdate);
             ruleNameModelUpdate.Name = "Updated rule";
             this._factory.Logout(this._httpClient);
 
@@ -259,21 +232,11 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRuleNamesAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/RuleName/list");
-            var ruleNames = await responseAll.Content.ReadFromJsonAsync<List<RuleNameModel>>();
-            var ruleNameToUpdate = ruleNames[0];
-            var ruleNameModelUpdate = new RuleNameModelUpdate()
-            {
-                Name = ruleNameToUpdate.Name,
-                Description = ruleNameToUpdate.Description,
-                Json = ruleNameToUpdate.Json,
-                Template = ruleNameToUpdate.Template,
-                SqlStr = ruleNameToUpdate.SqlStr,
-                SqlPart = ruleNameToUpdate.SqlPart
-            };
+            var ruleNameToUpdate = this.GetFirstRecordInTable();
+            var ruleNameModelUpdate = this.GetRuleNameModelToUpdate(ruleNameToUpdate);
             ruleNameModelUpdate.Name = "Updated rule";
-            var nonExistingRuleNameId = ruleNames.Max(r => r.Id) + 1;
+            var nonExistingRuleNameId = -1;
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/RuleName/update/{nonExistingRuleNameId}", ruleNameModelUpdate);
@@ -287,10 +250,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRuleNamesAsync();
+            var ruleNameToDeleteId = this.GetFirstRecordInTable().Id;
             await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/RuleName/list");
-            var ruleNames = await responseAll.Content.ReadFromJsonAsync<List<RuleNameModel>>();
-            var ruleNameToDeleteId = ruleNames[0].Id;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/RuleName/deletion/{ruleNameToDeleteId}");
@@ -305,10 +266,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRuleNamesAsync();
+            var ruleNameToDeleteId = this.GetFirstRecordInTable().Id;
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/RuleName/list");
-            var ruleNames = await responseAll.Content.ReadFromJsonAsync<List<RuleNameModel>>();
-            var ruleNameToDeleteId = ruleNames[0].Id;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/RuleName/deletion/{ruleNameToDeleteId}");
@@ -322,10 +281,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRuleNamesAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/RuleName/list");
-            var ruleNames = await responseAll.Content.ReadFromJsonAsync<List<RuleNameModel>>();
-            var ruleNameToDeleteId = ruleNames[0].Id;
+            var ruleNameToDeleteId = this.GetFirstRecordInTable().Id;
             this._factory.Logout(this._httpClient);
 
             // Act
@@ -340,10 +296,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRuleNamesAsync();
+            var nonExistingRuleNameId = -1;
             await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/RuleName/list");
-            var ruleNames = await responseAll.Content.ReadFromJsonAsync<List<RuleNameModel>>();
-            var nonExistingRuleNameId = ruleNames.Max(r => r.Id) + 1;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/RuleName/deletion/{nonExistingRuleNameId}");

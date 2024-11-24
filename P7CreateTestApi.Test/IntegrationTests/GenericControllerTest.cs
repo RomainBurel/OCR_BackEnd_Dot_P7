@@ -29,6 +29,16 @@ namespace P7CreateTestApi.Test.IntegrationTests
             }
         }
 
+        protected List<T> GetAllRecordsInTable()
+        {
+            using (var scope = this._factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
+                var dbSet = context.Set<T>();
+                return dbSet.ToList();
+            }
+        }
+
         protected int NbRecordsInTable()
         {
             using (var scope = this._factory.Services.CreateScope())
@@ -36,6 +46,26 @@ namespace P7CreateTestApi.Test.IntegrationTests
                 var context = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
                 var dbSet = context.Set<T>();
                 return dbSet.Count();
+            }
+        }
+
+        protected T GetFirstRecordInTable()
+        {
+            using (var scope = this._factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
+                var dbSet = context.Set<T>();
+                return dbSet.First();
+            }
+        }
+
+        protected T GetRecordById(object id)
+        {
+            using (var scope = this._factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<LocalDbContext>();
+                var dbSet = context.Set<T>();
+                return dbSet.Find(id);
             }
         }
 

@@ -25,9 +25,14 @@ namespace P7CreateTestApi.Test.IntegrationTests
             };
         }
 
-        private UserModelAdd NewUser()
+        private UserModelAdd GetNewUserModelAdd()
         {
             return new UserModelAdd() { Email = "newuser@findexium.com", UserName = "UserNew", FullName = "The new user", Password = "NewPWD123@" };
+        }
+
+        private UserModelUpdate GetUserModelToUpdate(User user)
+        {
+            return new UserModelUpdate() { UserName = user.UserName, Email = user.Email, FullName = user.FullName };
         }
 
         private async Task SeedSampleUsersAsync()
@@ -60,8 +65,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleUsersAsync();
-            await this._factory.LoginAsUser(this._httpClient);
             var nbRecords = this.NbRecordsInTable();
+            await this._factory.LoginAsUser(this._httpClient);
 
             // Act
             var response = await this._httpClient.GetAsync("/User/list");
@@ -91,10 +96,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleUsersAsync();
+            var expectedUser = this.GetFirstRecordInTable();
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/User/list");
-            var users = await responseAll.Content.ReadFromJsonAsync<List<UserModel>>();
-            var expectedUser = users[0];
 
             // Act
             var response = await this._httpClient.GetAsync($"/User/display/{expectedUser.Id}");
@@ -106,7 +109,6 @@ namespace P7CreateTestApi.Test.IntegrationTests
             Assert.Equal(expectedUser.Id, user.Id);
             Assert.Equal(expectedUser.UserName, user.UserName);
             Assert.Equal(expectedUser.FullName, user.FullName);
-            Assert.Equal(expectedUser.Password, user.Password);
         }
 
         [Fact]
@@ -114,10 +116,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleUsersAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/User/list");
-            var users = await responseAll.Content.ReadFromJsonAsync<List<UserModel>>();
-            var expectedUser = users[0];
+            var expectedUser = this.GetFirstRecordInTable();
             this._factory.Logout(this._httpClient);
 
             // Act
@@ -132,10 +131,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleUsersAsync();
+            var nonExistingUserId = "0";
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/User/list");
-            var users = await responseAll.Content.ReadFromJsonAsync<List<UserModel>>();
-            var nonExistingUserId = users.Max(r => r.Id) + 1;
 
             // Act
             var response = await this._httpClient.GetAsync($"/User/display/{nonExistingUserId}");
@@ -149,9 +146,9 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleUsersAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
-            var newUser = this.NewUser();
+            var newUser = this.GetNewUserModelAdd();
             var nbRecordsInit = this.NbRecordsInTable();
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/User/creation", newUser);
@@ -166,8 +163,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         public async Task AddUser_AsLoggedUser_ShouldReturn_Forbidden()
         {
             // Arrange
+            var newUser = this.GetNewUserModelAdd();
             await this._factory.LoginAsUser(this._httpClient);
-            var newUser = this.NewUser();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/User/creation", newUser);
@@ -180,8 +177,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         public async Task AddUser_NoLoggedUser_ShouldReturn_Unauthorized()
         {
             // Arrange
+            var newUser = this.GetNewUserModelAdd();
             this._factory.Logout(this._httpClient);
-            var newUser = this.NewUser();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/User/creation", newUser);
@@ -195,22 +192,14 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleUsersAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/User/list");
-            var users = await responseAll.Content.ReadFromJsonAsync<List<UserModel>>();
-            var userToUpdate = users[0];
-            var userModelUpdate = new UserModelUpdate()
-            {
-                UserName = userToUpdate.UserName,
-                Email = userToUpdate.Email,
-                FullName = userToUpdate.FullName
-            };
+            var userToUpdate = this.GetFirstRecordInTable();
+            var userModelUpdate = this.GetUserModelToUpdate(userToUpdate);
             userModelUpdate.UserName = "UpdatedUser";
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/User/update/{userToUpdate.Id}", userModelUpdate);
-            var responseUpdated = await this._httpClient.GetAsync($"/User/display/{userToUpdate.Id}");
-            var userUpdated = await responseUpdated.Content.ReadFromJsonAsync<UserModel>();
+            var userUpdated = this.GetRecordById(userToUpdate.Id);
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
@@ -224,15 +213,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Arrange
             await this.SeedSampleUsersAsync();
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/User/list");
-            var users = await responseAll.Content.ReadFromJsonAsync<List<UserModel>>();
-            var userToUpdate = users[0];
-            var userModelUpdate = new UserModelUpdate()
-            {
-                UserName = userToUpdate.UserName,
-                Email = userToUpdate.Email,
-                FullName = userToUpdate.FullName
-            };
+            var userToUpdate = this.GetFirstRecordInTable();
+            var userModelUpdate = this.GetUserModelToUpdate(userToUpdate);
             userModelUpdate.UserName = "UpdatedUser";
 
             // Act
@@ -247,16 +229,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleUsersAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/User/list");
-            var users = await responseAll.Content.ReadFromJsonAsync<List<UserModel>>();
-            var userToUpdate = users[0];
-            var userModelUpdate = new UserModelUpdate()
-            {
-                UserName = userToUpdate.UserName,
-                Email = userToUpdate.Email,
-                FullName = userToUpdate.FullName
-            };
+            var userToUpdate = this.GetFirstRecordInTable();
+            var userModelUpdate = this.GetUserModelToUpdate(userToUpdate);
             userModelUpdate.UserName = "UpdatedUser";
             this._factory.Logout(this._httpClient);
 
@@ -272,18 +246,11 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleUsersAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/User/list");
-            var users = await responseAll.Content.ReadFromJsonAsync<List<UserModel>>();
-            var userToUpdate = users[0];
-            var userModelUpdate = new UserModelUpdate()
-            {
-                UserName = userToUpdate.UserName,
-                Email = userToUpdate.Email,
-                FullName = userToUpdate.FullName
-            };
+            var userToUpdate = this.GetFirstRecordInTable();
+            var userModelUpdate = this.GetUserModelToUpdate(userToUpdate);
             userModelUpdate.UserName = "UpdatedUser";
             var nonExistingUserId = "0";
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/User/update/{nonExistingUserId}", userModelUpdate);
@@ -297,10 +264,9 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleUsersAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/User/list");
-            var users = await responseAll.Content.ReadFromJsonAsync<List<UserModel>>();
+            var users = this.GetAllRecordsInTable();
             var userToDeleteId = users?.Find(user => user.Email == "user1@findexium.com")?.Id;
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/User/deletion/{userToDeleteId}");
@@ -315,10 +281,9 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleUsersAsync();
+            var users = this.GetAllRecordsInTable();
+            var userToDeleteId = users?.Find(user => user.Email == "user1@findexium.com")?.Id;
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/User/list");
-            var users = await responseAll.Content.ReadFromJsonAsync<List<UserModel>>();
-            var userToDeleteId = users[0].Id;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/User/deletion/{userToDeleteId}");
@@ -332,10 +297,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleUsersAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/User/list");
-            var users = await responseAll.Content.ReadFromJsonAsync<List<UserModel>>();
-            var userToDeleteId = users[0].Id;
+            var users = this.GetAllRecordsInTable();
+            var userToDeleteId = users?.Find(user => user.Email == "user1@findexium.com")?.Id;
             this._factory.Logout(this._httpClient);
 
             // Act
@@ -350,10 +313,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleUsersAsync();
+            var nonExistingUserId = "-1";
             await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/User/list");
-            var users = await responseAll.Content.ReadFromJsonAsync<List<UserModel>>();
-            var nonExistingUserId = users.Max(r => r.Id) + 1;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/User/deletion/{nonExistingUserId}");

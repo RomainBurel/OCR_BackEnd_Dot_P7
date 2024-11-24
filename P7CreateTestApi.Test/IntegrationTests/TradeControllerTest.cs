@@ -34,13 +34,33 @@ namespace P7CreateTestApi.Test.IntegrationTests
             };
         }
 
-        private TradeModelAdd NewTrade()
+        private TradeModelAdd GetNewTradeModelAdd()
         {
             return new TradeModelAdd()
             {
                 Account = "Account1", CreationDate = DateTime.Now, AccountType = "Current", Benchmark = "Benchmark1",
                 TradeSecurity = "TradeSecurity1", TradeStatus = "TradeStatus1", Trader = "Trader1", Book = "Book1",
                 CreationName = "TradeList1", DealName = "Deal1", DealType = "Type1", SourceListId = "Source1", Side = "Side1"
+            };
+        }
+
+        private TradeModelUpdate GetTradeModelToUpdate(Trade trade)
+        {
+            return new TradeModelUpdate()
+            {
+                Account = trade.Account,
+                AccountType = trade.AccountType,
+                Benchmark = trade.Benchmark,
+                TradeSecurity = trade.TradeSecurity,
+                TradeStatus = trade.TradeStatus,
+                Trader = trade.Trader,
+                Book = trade.Book,
+                RevisionName = "First revision",
+                RevisionDate = DateTime.Now,
+                DealName = trade.DealName,
+                DealType = trade.DealType,
+                SourceListId = trade.SourceListId,
+                Side = trade.Side
             };
         }
 
@@ -55,6 +75,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleTradesAsync();
+            var nbRecords = this.NbRecordsInTable();
             await this._factory.LoginAsUser(this._httpClient);
 
             // Act
@@ -64,7 +85,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Assert
             Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(trades);
-            Assert.Equal(this.GetTrades().Count, trades.Count);
+            Assert.Equal(nbRecords, trades.Count);
         }
 
         [Fact]
@@ -85,10 +106,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleTradesAsync();
+            var expectedTrade = this.GetFirstRecordInTable();
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Trade/list");
-            var trades = await responseAll.Content.ReadFromJsonAsync<List<TradeModel>>();
-            var expectedTrade = trades[0];
 
             // Act
             var response = await this._httpClient.GetAsync($"/Trade/display/{expectedTrade.TradeId}");
@@ -105,10 +124,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleTradesAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Trade/list");
-            var trades = await responseAll.Content.ReadFromJsonAsync<List<TradeModel>>();
-            var expectedTrade = trades[0];
+            var expectedTrade = this.GetFirstRecordInTable();
             this._factory.Logout(this._httpClient);
 
             // Act
@@ -123,10 +139,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleTradesAsync();
+            var nonExistingTradeId = -1;
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Trade/list");
-            var trades = await responseAll.Content.ReadFromJsonAsync<List<TradeModel>>();
-            var nonExistingTradeId = trades.Max(r => r.TradeId) + 1;
 
             // Act
             var response = await this._httpClient.GetAsync($"/Trade/display/{nonExistingTradeId}");
@@ -141,26 +155,24 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Arrange
             await this.SeedSampleTradesAsync();
             await this._factory.LoginAsAdmin(this._httpClient);
-            var nbRecordsInit = this.GetTrades().Count;
-            var newTrade = this.NewTrade();
+            var nbRecordsInit = this.NbRecordsInTable();
+            var newTrade = this.GetNewTradeModelAdd();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/Trade/creation", newTrade);
-            var responseAll = await this._httpClient.GetAsync("/Trade/list");
-            var trades = await responseAll.Content.ReadFromJsonAsync<List<TradeModel>>();
+            var nbRecordsAfterAdd = this.NbRecordsInTable();
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
-            Assert.Equal(trades.Count, nbRecordsInit + 1);
+            Assert.Equal(nbRecordsAfterAdd, nbRecordsInit + 1);
         }
 
         [Fact]
         public async Task AddTrade_AsLoggedUser_ShouldReturn_Forbidden()
         {
             // Arrange
-            this._factory.Logout(this._httpClient);
+            var newTrade = this.GetNewTradeModelAdd();
             await this._factory.LoginAsUser(this._httpClient);
-            var newTrade = this.NewTrade();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/Trade/creation", newTrade);
@@ -173,8 +185,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         public async Task AddTrade_NoLoggedUser_ShouldReturn_Unauthorized()
         {
             // Arrange
+            var newTrade = this.GetNewTradeModelAdd();
             this._factory.Logout(this._httpClient);
-            var newTrade = this.NewTrade();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/Trade/creation", newTrade);
@@ -188,32 +200,14 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleTradesAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Trade/list");
-            var trades = await responseAll.Content.ReadFromJsonAsync<List<TradeModel>>();
-            var tradeToUpdate = trades[0];
-            var tradeModelUpdate = new TradeModelUpdate()
-            {
-                Account = tradeToUpdate.Account,
-                AccountType = tradeToUpdate.AccountType,
-                Benchmark = tradeToUpdate.Benchmark,
-                TradeSecurity = tradeToUpdate.TradeSecurity,
-                TradeStatus = tradeToUpdate.TradeStatus,
-                Trader = tradeToUpdate.Trader,
-                Book = tradeToUpdate.Book,
-                RevisionName = "First revision",
-                RevisionDate = DateTime.Now,
-                DealName = tradeToUpdate.DealName,
-                DealType = tradeToUpdate.DealType,
-                SourceListId = tradeToUpdate.SourceListId,
-                Side = tradeToUpdate.Side
-            };
+            var tradeToUpdate = this.GetFirstRecordInTable();
+            var tradeModelUpdate = this.GetTradeModelToUpdate(tradeToUpdate);
             tradeModelUpdate.Account = "Updated Account";
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/Trade/update/{tradeToUpdate.TradeId}", tradeModelUpdate);
-            var responseUpdated = await this._httpClient.GetAsync($"/Trade/display/{tradeToUpdate.TradeId}");
-            var tradeUpdated = await responseUpdated.Content.ReadFromJsonAsync<TradeModel>();
+            var tradeUpdated = this.GetRecordById(tradeToUpdate.TradeId);
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
@@ -226,27 +220,10 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleTradesAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Trade/list");
-            var trades = await responseAll.Content.ReadFromJsonAsync<List<TradeModel>>();
-            var tradeToUpdate = trades[0];
-            var tradeModelUpdate = new TradeModelUpdate()
-            {
-                Account = tradeToUpdate.Account,
-                AccountType = tradeToUpdate.AccountType,
-                Benchmark = tradeToUpdate.Benchmark,
-                TradeSecurity = tradeToUpdate.TradeSecurity,
-                TradeStatus = tradeToUpdate.TradeStatus,
-                Trader = tradeToUpdate.Trader,
-                Book = tradeToUpdate.Book,
-                RevisionName = "First revision",
-                RevisionDate = DateTime.Now,
-                DealName = tradeToUpdate.DealName,
-                DealType = tradeToUpdate.DealType,
-                SourceListId = tradeToUpdate.SourceListId,
-                Side = tradeToUpdate.Side
-            };
+            var tradeToUpdate = this.GetFirstRecordInTable();
+            var tradeModelUpdate = this.GetTradeModelToUpdate(tradeToUpdate);
             tradeModelUpdate.Account = "Updated Account";
+            await this._factory.LoginAsUser(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/Trade/update/{tradeToUpdate.TradeId}", tradeModelUpdate);
@@ -260,26 +237,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleTradesAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Trade/list");
-            var trades = await responseAll.Content.ReadFromJsonAsync<List<TradeModel>>();
-            var tradeToUpdate = trades[0];
-            var tradeModelUpdate = new TradeModelUpdate()
-            {
-                Account = tradeToUpdate.Account,
-                AccountType = tradeToUpdate.AccountType,
-                Benchmark = tradeToUpdate.Benchmark,
-                TradeSecurity = tradeToUpdate.TradeSecurity,
-                TradeStatus = tradeToUpdate.TradeStatus,
-                Trader = tradeToUpdate.Trader,
-                Book = tradeToUpdate.Book,
-                RevisionName = "First revision",
-                RevisionDate = DateTime.Now,
-                DealName = tradeToUpdate.DealName,
-                DealType = tradeToUpdate.DealType,
-                SourceListId = tradeToUpdate.SourceListId,
-                Side = tradeToUpdate.Side
-            };
+            var tradeToUpdate = this.GetFirstRecordInTable();
+            var tradeModelUpdate = this.GetTradeModelToUpdate(tradeToUpdate);
             tradeModelUpdate.Account = "Updated Account";
             this._factory.Logout(this._httpClient);
 
@@ -295,28 +254,11 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleTradesAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Trade/list");
-            var trades = await responseAll.Content.ReadFromJsonAsync<List<TradeModel>>();
-            var tradeToUpdate = trades[0];
-            var tradeModelUpdate = new TradeModelUpdate()
-            {
-                Account = tradeToUpdate.Account,
-                AccountType = tradeToUpdate.AccountType,
-                Benchmark = tradeToUpdate.Benchmark,
-                TradeSecurity = tradeToUpdate.TradeSecurity,
-                TradeStatus = tradeToUpdate.TradeStatus,
-                Trader = tradeToUpdate.Trader,
-                Book = tradeToUpdate.Book,
-                RevisionName = "First revision",
-                RevisionDate = DateTime.Now,
-                DealName = tradeToUpdate.DealName,
-                DealType = tradeToUpdate.DealType,
-                SourceListId = tradeToUpdate.SourceListId,
-                Side = tradeToUpdate.Side
-            };
+            var tradeToUpdate = this.GetFirstRecordInTable();
+            var tradeModelUpdate = this.GetTradeModelToUpdate(tradeToUpdate);
             tradeModelUpdate.Account = "Updated Account";
-            var nonExistingTradeId = trades.Max(r => r.TradeId) + 1;
+            var nonExistingTradeId = -1;
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/Trade/update/{nonExistingTradeId}", tradeModelUpdate);
@@ -330,10 +272,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleTradesAsync();
+            var tradeToDeleteId = this.GetFirstRecordInTable().TradeId;
             await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Trade/list");
-            var trades = await responseAll.Content.ReadFromJsonAsync<List<TradeModel>>();
-            var tradeToDeleteId = trades[0].TradeId;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/Trade/deletion/{tradeToDeleteId}");
@@ -348,10 +288,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleTradesAsync();
+            var tradeToDeleteId = this.GetFirstRecordInTable().TradeId;
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Trade/list");
-            var trades = await responseAll.Content.ReadFromJsonAsync<List<TradeModel>>();
-            var tradeToDeleteId = trades[0].TradeId;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/Trade/deletion/{tradeToDeleteId}");
@@ -365,10 +303,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleTradesAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Trade/list");
-            var trades = await responseAll.Content.ReadFromJsonAsync<List<TradeModel>>();
-            var tradeToDeleteId = trades[0].TradeId;
+            var tradeToDeleteId = this.GetFirstRecordInTable().TradeId;
             this._factory.Logout(this._httpClient);
 
             // Act
@@ -383,10 +318,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleTradesAsync();
+            var nonExistingTradeId = -1;
             await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Trade/list");
-            var trades = await responseAll.Content.ReadFromJsonAsync<List<TradeModel>>();
-            var nonExistingTradeId = trades.Max(r => r.TradeId) + 1;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/Trade/deletion/{nonExistingTradeId}");

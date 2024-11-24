@@ -22,9 +22,14 @@ namespace P7CreateTestApi.Test.IntegrationTests
             };
         }
 
-        private CurvePointModelAdd NewCurvePoint()
+        private CurvePointModelAdd GetNewCurvePointModelAdd()
         {
             return new CurvePointModelAdd() { CurveId = 5, Term = 1.8, CreationDate = DateTime.Now, AsOfDate = DateTime.Now, CurvePointValue = 3.8 };
+        }
+
+        private CurvePointModelUpdate GetCurvePointModelToUpdate(CurvePoint curvePoint)
+        {
+            return new CurvePointModelUpdate() { CurveId = curvePoint.CurveId, Term = curvePoint.Term };
         }
 
         private async Task SeedSampleCurvePointsAsync()
@@ -38,6 +43,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleCurvePointsAsync();
+            var nbRecords = this.NbRecordsInTable();
             await this._factory.LoginAsUser(this._httpClient);
 
             // Act
@@ -47,7 +53,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Assert
             Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(curvePoints);
-            Assert.Equal(this.GetCurvePoints().Count, curvePoints.Count);
+            Assert.Equal(nbRecords, curvePoints.Count);
         }
 
         [Fact]
@@ -68,10 +74,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleCurvePointsAsync();
+            var expectedCurvePoint = this.GetFirstRecordInTable();
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Curve/list");
-            var curvePoints = await responseAll.Content.ReadFromJsonAsync<List<CurvePointModel>>();
-            var expectedCurvePoint = curvePoints[0];
 
             // Act
             var response = await this._httpClient.GetAsync($"/Curve/display/{expectedCurvePoint.Id}");
@@ -90,10 +94,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleCurvePointsAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Curve/list");
-            var curvePoints = await responseAll.Content.ReadFromJsonAsync<List<CurvePointModel>>();
-            var expectedCurvePoint = curvePoints[0];
+            var expectedCurvePoint = this.GetFirstRecordInTable();
             this._factory.Logout(this._httpClient);
 
             // Act
@@ -108,10 +109,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleCurvePointsAsync();
+            var nonExistingCurvePointId = -1;
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Curve/list");
-            var curvePoints = await responseAll.Content.ReadFromJsonAsync<List<CurvePointModel>>();
-            var nonExistingCurvePointId = curvePoints.Max(r => r.Id) + 1;
 
             // Act
             var response = await this._httpClient.GetAsync($"/Curve/display/{nonExistingCurvePointId}");
@@ -125,27 +124,25 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleCurvePointsAsync();
+            var nbRecordsInit = this.NbRecordsInTable();
+            var newCurvePoint = this.GetNewCurvePointModelAdd();
             await this._factory.LoginAsAdmin(this._httpClient);
-            var nbRecordsInit = this.GetCurvePoints().Count;
-            var newCurvePoint = this.NewCurvePoint();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/Curve/creation", newCurvePoint);
-            var responseAll = await this._httpClient.GetAsync("/Curve/list");
-            var curvePoints = await responseAll.Content.ReadFromJsonAsync<List<CurvePointModel>>();
+            var nbRecordsAfterAdd = this.NbRecordsInTable();
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
-            Assert.Equal(curvePoints.Count, nbRecordsInit + 1);
+            Assert.Equal(nbRecordsAfterAdd, nbRecordsInit + 1);
         }
 
         [Fact]
         public async Task AddCurvePoint_AsLoggedUser_ShouldReturn_Forbidden()
         {
             // Arrange
-            this._factory.Logout(this._httpClient);
+            var newCurvePoint = this.GetNewCurvePointModelAdd();
             await this._factory.LoginAsUser(this._httpClient);
-            var newCurvePoint = this.NewCurvePoint();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/Curve/creation", newCurvePoint);
@@ -158,8 +155,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         public async Task AddCurvePoint_NoLoggedUser_ShouldReturn_Unauthorized()
         {
             // Arrange
+            var newCurvePoint = this.GetNewCurvePointModelAdd();
             this._factory.Logout(this._httpClient);
-            var newCurvePoint = this.NewCurvePoint();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/Curve/creation", newCurvePoint);
@@ -173,21 +170,14 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleCurvePointsAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Curve/list");
-            var curvePoints = await responseAll.Content.ReadFromJsonAsync<List<CurvePointModel>>();
-            var curvePointToUpdate = curvePoints[0];
-            var curvePointModelUpdate = new CurvePointModelUpdate()
-            {
-                CurveId = curvePointToUpdate.CurveId,
-                Term = curvePointToUpdate.Term
-            };
+            var curvePointToUpdate = this.GetFirstRecordInTable();
+            var curvePointModelUpdate = this.GetCurvePointModelToUpdate(curvePointToUpdate);
             curvePointModelUpdate.Term = 5.0;
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/Curve/update/{curvePointToUpdate.Id}", curvePointModelUpdate);
-            var responseUpdated = await this._httpClient.GetAsync($"/Curve/display/{curvePointToUpdate.Id}");
-            var curvePointUpdated = await responseUpdated.Content.ReadFromJsonAsync<CurvePointModel>();
+            var curvePointUpdated = this.GetRecordById(curvePointToUpdate.Id);
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
@@ -200,16 +190,10 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleCurvePointsAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Curve/list");
-            var curvePoints = await responseAll.Content.ReadFromJsonAsync<List<CurvePointModel>>();
-            var curvePointToUpdate = curvePoints[0];
-            var curvePointModelUpdate = new CurvePointModelUpdate()
-            {
-                CurveId = curvePointToUpdate.CurveId,
-                Term = curvePointToUpdate.Term
-            };
+            var curvePointToUpdate = this.GetFirstRecordInTable();
+            var curvePointModelUpdate = this.GetCurvePointModelToUpdate(curvePointToUpdate);
             curvePointModelUpdate.Term = 5.0;
+            await this._factory.LoginAsUser(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/Curve/update/{curvePointToUpdate.Id}", curvePointModelUpdate);
@@ -223,15 +207,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleCurvePointsAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Curve/list");
-            var curvePoints = await responseAll.Content.ReadFromJsonAsync<List<CurvePointModel>>();
-            var curvePointToUpdate = curvePoints[0];
-            var curvePointModelUpdate = new CurvePointModelUpdate()
-            {
-                CurveId = curvePointToUpdate.CurveId,
-                Term = curvePointToUpdate.Term
-            };
+            var curvePointToUpdate = this.GetFirstRecordInTable();
+            var curvePointModelUpdate = this.GetCurvePointModelToUpdate(curvePointToUpdate);
             curvePointModelUpdate.Term = 5.0;
             this._factory.Logout(this._httpClient);
 
@@ -247,17 +224,12 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleCurvePointsAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
             var responseAll = await this._httpClient.GetAsync("/Curve/list");
-            var curvePoints = await responseAll.Content.ReadFromJsonAsync<List<CurvePointModel>>();
-            var curvePointToUpdate = curvePoints[0];
-            var curvePointModelUpdate = new CurvePointModelUpdate()
-            {
-                CurveId = curvePointToUpdate.CurveId,
-                Term = curvePointToUpdate.Term
-            };
+            var curvePointToUpdate = this.GetFirstRecordInTable();
+            var curvePointModelUpdate = this.GetCurvePointModelToUpdate(curvePointToUpdate);
             curvePointModelUpdate.Term = 5.0;
-            var nonExistingCurvePointId = curvePoints.Max(r => r.Id) + 1;
+            var nonExistingCurvePointId = -1;
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/Curve/update/{nonExistingCurvePointId}", curvePointModelUpdate);
@@ -271,10 +243,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleCurvePointsAsync();
+            var curvePointToDeleteId = this.GetFirstRecordInTable().Id;
             await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Curve/list");
-            var curvePoints = await responseAll.Content.ReadFromJsonAsync<List<CurvePointModel>>();
-            var curvePointToDeleteId = curvePoints[0].Id;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/Curve/deletion/{curvePointToDeleteId}");
@@ -289,10 +259,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleCurvePointsAsync();
+            var curvePointToDeleteId = this.GetFirstRecordInTable().Id;
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Curve/list");
-            var curvePoints = await responseAll.Content.ReadFromJsonAsync<List<CurvePointModel>>();
-            var curvePointToDeleteId = curvePoints[0].Id;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/Curve/deletion/{curvePointToDeleteId}");
@@ -306,10 +274,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleCurvePointsAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Curve/list");
-            var curvePoints = await responseAll.Content.ReadFromJsonAsync<List<CurvePointModel>>();
-            var curvePointToDeleteId = curvePoints[0].Id;
+            var curvePointToDeleteId = this.GetFirstRecordInTable().Id;
             this._factory.Logout(this._httpClient);
 
             // Act
@@ -324,10 +289,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleCurvePointsAsync();
+            var nonExistingCurvePointId = -1;
             await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Curve/list");
-            var curvePoints = await responseAll.Content.ReadFromJsonAsync<List<CurvePointModel>>();
-            var nonExistingCurvePointId = curvePoints.Max(r => r.Id) + 1;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/Curve/deletion/{nonExistingCurvePointId}");

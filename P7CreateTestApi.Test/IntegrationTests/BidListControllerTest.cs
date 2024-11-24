@@ -34,7 +34,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             };
         }
 
-        private BidListModelAdd NewBidList()
+        private BidListModelAdd GetNewBidListModelAdd()
         {
             return new BidListModelAdd()
             {
@@ -42,6 +42,26 @@ namespace P7CreateTestApi.Test.IntegrationTests
                 Commentary = "New Commentary", BidSecurity = "New BidSecurity", BidStatus = "New BidStatus", Trader = "New Trader",
                 Book = "New Book", CreationName = "New BidList", DealName = "New Deal", DealType = "New Type",
                 SourceListId = "New Source", Side = "New Side"
+            };
+        }
+
+        private BidListModelUpdate GetBidListModelToUpdate(BidList bidList)
+        {
+            return new BidListModelUpdate()
+            {
+                Account = bidList.Account,
+                BidType = bidList.BidType,
+                Benchmark = bidList.Benchmark,
+                Commentary = bidList.Commentary,
+                BidSecurity = bidList.BidSecurity,
+                BidStatus = bidList.BidStatus,
+                Trader = bidList.Trader,
+                Book = bidList.Book,
+                RevisionName = "First revision",
+                DealName = bidList.DealName,
+                DealType = bidList.DealType,
+                SourceListId = bidList.SourceListId,
+                Side = bidList.Side
             };
         }
 
@@ -56,6 +76,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleBidListsAsync();
+            var nbRecords = this.NbRecordsInTable();
             await this._factory.LoginAsUser(this._httpClient);
 
             // Act
@@ -65,7 +86,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Assert
             Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(bidLists);
-            Assert.Equal(this.GetBidLists().Count, bidLists.Count);
+            Assert.Equal(nbRecords, bidLists.Count);
         }
 
         [Fact]
@@ -86,10 +107,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleBidListsAsync();
+            var expectedBidList = this.GetFirstRecordInTable();
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/BidList/list");
-            var bidLists = await responseAll.Content.ReadFromJsonAsync<List<BidListModel>>();
-            var expectedBidList = bidLists[0];
 
             // Act
             var response = await this._httpClient.GetAsync($"/BidList/display/{expectedBidList.BidListId}");
@@ -109,10 +128,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleBidListsAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/BidList/list");
-            var bidLists = await responseAll.Content.ReadFromJsonAsync<List<BidListModel>>();
-            var expectedBidList = bidLists[0];
+            var expectedBidList = this.GetFirstRecordInTable();
             this._factory.Logout(this._httpClient);
 
             // Act
@@ -127,10 +143,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleBidListsAsync();
+            var nonExistingBidListId = -1;
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/BidList/list");
-            var bidLists = await responseAll.Content.ReadFromJsonAsync<List<BidListModel>>();
-            var nonExistingBidListId = bidLists.Max(r => r.BidListId) + 1;
 
             // Act
             var response = await this._httpClient.GetAsync($"/BidList/display/{nonExistingBidListId}");
@@ -144,18 +158,17 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleBidListsAsync();
+            var nbRecordsInit = this.NbRecordsInTable();
+            var newBidList = this.GetNewBidListModelAdd();
             await this._factory.LoginAsAdmin(this._httpClient);
-            var nbRecordsInit = this.GetBidLists().Count;
-            var newBidList = this.NewBidList();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/BidList/creation", newBidList);
-            var responseAll = await this._httpClient.GetAsync("/BidList/list");
-            var bidLists = await responseAll.Content.ReadFromJsonAsync<List<BidListModel>>();
+            var nbRecordsAfterAdd = this.NbRecordsInTable();
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
-            Assert.Equal(bidLists.Count, nbRecordsInit + 1);
+            Assert.Equal(nbRecordsAfterAdd, nbRecordsInit + 1);
         }
 
         [Fact]
@@ -163,8 +176,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             this._factory.Logout(this._httpClient);
+            var newBidList = this.GetNewBidListModelAdd();
             await this._factory.LoginAsUser(this._httpClient);
-            var newBidList = this.NewBidList();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/BidList/creation", newBidList);
@@ -177,8 +190,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         public async Task AddBidList_NoLoggedUser_ShouldReturn_Unauthorized()
         {
             // Arrange
+            var newBidList = this.GetNewBidListModelAdd();
             this._factory.Logout(this._httpClient);
-            var newBidList = this.NewBidList();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/BidList/creation", newBidList);
@@ -192,32 +205,14 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleBidListsAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/BidList/list");
-            var bidLists = await responseAll.Content.ReadFromJsonAsync<List<BidListModel>>();
-            var bidListToUpdate = bidLists[0];
-            var bidListModelUpdate = new BidListModelUpdate()
-            {
-                Account = bidListToUpdate.Account,
-                BidType = bidListToUpdate.BidType,
-                Benchmark = bidListToUpdate.Benchmark,
-                Commentary = bidListToUpdate.Commentary,
-                BidSecurity = bidListToUpdate.BidSecurity,
-                BidStatus = bidListToUpdate.BidStatus,
-                Trader = bidListToUpdate.Trader,
-                Book = bidListToUpdate.Book,
-                RevisionName = "First revision",
-                DealName = bidListToUpdate.DealName,
-                DealType = bidListToUpdate.DealType,
-                SourceListId = bidListToUpdate.SourceListId,
-                Side = bidListToUpdate.Side
-            };
+            var bidListToUpdate = this.GetFirstRecordInTable();
+            var bidListModelUpdate = this.GetBidListModelToUpdate(bidListToUpdate);
             bidListModelUpdate.BidType = "Update";
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/BidList/update/{bidListToUpdate.BidListId}", bidListModelUpdate);
-            var responseUpdated = await this._httpClient.GetAsync($"/BidList/display/{bidListToUpdate.BidListId}");
-            var bidListUpdated = await responseUpdated.Content.ReadFromJsonAsync<BidListModel>();
+            var bidListUpdated = this.GetRecordById(bidListToUpdate.BidListId);
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
@@ -230,27 +225,11 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleBidListsAsync();
-            await this._factory.LoginAsUser(this._httpClient);
             var responseAll = await this._httpClient.GetAsync("/BidList/list");
-            var bidLists = await responseAll.Content.ReadFromJsonAsync<List<BidListModel>>();
-            var bidListToUpdate = bidLists[0];
-            var bidListModelUpdate = new BidListModelUpdate()
-            {
-                Account = bidListToUpdate.Account,
-                BidType = bidListToUpdate.BidType,
-                Benchmark = bidListToUpdate.Benchmark,
-                Commentary = bidListToUpdate.Commentary,
-                BidSecurity = bidListToUpdate.BidSecurity,
-                BidStatus = bidListToUpdate.BidStatus,
-                Trader = bidListToUpdate.Trader,
-                Book = bidListToUpdate.Book,
-                RevisionName = "First revision",
-                DealName = bidListToUpdate.DealName,
-                DealType = bidListToUpdate.DealType,
-                SourceListId = bidListToUpdate.SourceListId,
-                Side = bidListToUpdate.Side
-            };
+            var bidListToUpdate = this.GetFirstRecordInTable();
+            var bidListModelUpdate = this.GetBidListModelToUpdate(bidListToUpdate);
             bidListModelUpdate.BidType = "Update";
+            await this._factory.LoginAsUser(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/BidList/update/{bidListToUpdate.BidListId}", bidListModelUpdate);
@@ -264,26 +243,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleBidListsAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/BidList/list");
-            var bidLists = await responseAll.Content.ReadFromJsonAsync<List<BidListModel>>();
-            var bidListToUpdate = bidLists[0];
-            var bidListModelUpdate = new BidListModelUpdate()
-            {
-                Account = bidListToUpdate.Account,
-                BidType = bidListToUpdate.BidType,
-                Benchmark = bidListToUpdate.Benchmark,
-                Commentary = bidListToUpdate.Commentary,
-                BidSecurity = bidListToUpdate.BidSecurity,
-                BidStatus = bidListToUpdate.BidStatus,
-                Trader = bidListToUpdate.Trader,
-                Book = bidListToUpdate.Book,
-                RevisionName = "First revision",
-                DealName = bidListToUpdate.DealName,
-                DealType = bidListToUpdate.DealType,
-                SourceListId = bidListToUpdate.SourceListId,
-                Side = bidListToUpdate.Side
-            };
+            var bidListToUpdate = this.GetFirstRecordInTable();
+            var bidListModelUpdate = this.GetBidListModelToUpdate(bidListToUpdate);
             bidListModelUpdate.BidType = "Update";
             this._factory.Logout(this._httpClient);
 
@@ -299,28 +260,11 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleBidListsAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/BidList/list");
-            var bidLists = await responseAll.Content.ReadFromJsonAsync<List<BidListModel>>();
-            var bidListToUpdate = bidLists[0];
-            var bidListModelUpdate = new BidListModelUpdate()
-            {
-                Account = bidListToUpdate.Account,
-                BidType = bidListToUpdate.BidType,
-                Benchmark = bidListToUpdate.Benchmark,
-                Commentary = bidListToUpdate.Commentary,
-                BidSecurity = bidListToUpdate.BidSecurity,
-                BidStatus = bidListToUpdate.BidStatus,
-                Trader = bidListToUpdate.Trader,
-                Book = bidListToUpdate.Book,
-                RevisionName = "First revision",
-                DealName = bidListToUpdate.DealName,
-                DealType = bidListToUpdate.DealType,
-                SourceListId = bidListToUpdate.SourceListId,
-                Side = bidListToUpdate.Side
-            };
+            var bidListToUpdate = this.GetFirstRecordInTable();
+            var bidListModelUpdate = this.GetBidListModelToUpdate(bidListToUpdate);
             bidListModelUpdate.BidType = "Update";
-            var nonExistingBidListId = bidLists.Max(r => r.BidListId) + 1;
+            var nonExistingBidListId = -1;
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/BidList/update/{nonExistingBidListId}", bidListModelUpdate);
@@ -334,10 +278,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleBidListsAsync();
+            var bidListToDeleteId = this.GetFirstRecordInTable().BidListId;
             await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/BidList/list");
-            var bidLists = await responseAll.Content.ReadFromJsonAsync<List<BidListModel>>();
-            var bidListToDeleteId = bidLists[0].BidListId;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/BidList/deletion/{bidListToDeleteId}");
@@ -352,10 +294,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleBidListsAsync();
+            var bidListToDeleteId = this.GetFirstRecordInTable();
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/BidList/list");
-            var bidLists = await responseAll.Content.ReadFromJsonAsync<List<BidListModel>>();
-            var bidListToDeleteId = bidLists[0].BidListId;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/BidList/deletion/{bidListToDeleteId}");
@@ -369,10 +309,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleBidListsAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/BidList/list");
-            var bidLists = await responseAll.Content.ReadFromJsonAsync<List<BidListModel>>();
-            var bidListToDeleteId = bidLists[0].BidListId;
+            var bidListToDeleteId = this.GetFirstRecordInTable();
             this._factory.Logout(this._httpClient);
 
             // Act
@@ -387,10 +324,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleBidListsAsync();
+            var nonExistingBidListId = -1;
             await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/BidList/list");
-            var bidLists = await responseAll.Content.ReadFromJsonAsync<List<BidListModel>>();
-            var nonExistingBidListId = bidLists.Max(r => r.BidListId) + 1;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/BidList/deletion/{nonExistingBidListId}");

@@ -22,9 +22,20 @@ namespace P7CreateTestApi.Test.IntegrationTests
             };
         }
 
-        private RatingModelAdd NewRating()
+        private RatingModelAdd GetNewRatingModelAdd()
         {
             return new RatingModelAdd() { FitchRating = "Ficth", MoodysRating = "Mood", SandPRating = "SandP", OrderNumber = 12 };
+        }
+
+        private RatingModelUpdate GetRatingModelToUpdate(Rating rating)
+        {
+            return new RatingModelUpdate()
+            {
+                FitchRating = rating.FitchRating,
+                MoodysRating = rating.MoodysRating,
+                SandPRating = rating.SandPRating,
+                OrderNumber = rating.OrderNumber
+            };
         }
 
         private async Task SeedSampleRatingsAsync()
@@ -38,6 +49,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRatingsAsync();
+            var nbRecords = this.NbRecordsInTable();
             await this._factory.LoginAsUser(this._httpClient);
 
             // Act
@@ -47,7 +59,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
             // Assert
             Assert.True(response.IsSuccessStatusCode);
             Assert.NotNull(ratings);
-            Assert.Equal(this.GetRatings().Count, ratings.Count);
+            Assert.Equal(nbRecords, ratings.Count);
         }
 
         [Fact]
@@ -68,10 +80,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRatingsAsync();
+            var expectedRating = this.GetFirstRecordInTable();
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Rating/list");
-            var ratings = await responseAll.Content.ReadFromJsonAsync<List<RatingModel>>();
-            var expectedRating = ratings[0];
 
             // Act
             var response = await this._httpClient.GetAsync($"/Rating/display/{expectedRating.Id}");
@@ -92,10 +102,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRatingsAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Rating/list");
-            var ratings = await responseAll.Content.ReadFromJsonAsync<List<RatingModel>>();
-            var expectedRating = ratings[0];
+            var expectedRating = this.GetFirstRecordInTable();
             this._factory.Logout(this._httpClient);
 
             // Act
@@ -110,10 +117,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRatingsAsync();
+            var nonExistingRatingId = -1;
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Rating/list");
-            var ratings = await responseAll.Content.ReadFromJsonAsync<List<RatingModel>>();
-            var nonExistingRatingId = ratings.Max(r => r.Id) + 1;
 
             // Act
             var response = await this._httpClient.GetAsync($"/Rating/display/{nonExistingRatingId}");
@@ -127,27 +132,25 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRatingsAsync();
+            var nbRecordsInit = this.NbRecordsInTable();
+            var newRating = this.GetNewRatingModelAdd();
             await this._factory.LoginAsAdmin(this._httpClient);
-            var nbRecordsInit = this.GetRatings().Count;
-            var newRating = this.NewRating();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/Rating/creation", newRating);
-            var responseAll = await this._httpClient.GetAsync("/Rating/list");
-            var ratings = await responseAll.Content.ReadFromJsonAsync<List<RatingModel>>();
+            var nbRecordsAfterAdd = this.NbRecordsInTable();
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
-            Assert.Equal(ratings.Count, nbRecordsInit + 1);
+            Assert.Equal(nbRecordsAfterAdd, nbRecordsInit + 1);
         }
 
         [Fact]
         public async Task AddRating_AsLoggedUser_ShouldReturn_Forbidden()
         {
             // Arrange
-            this._factory.Logout(this._httpClient);
+            var newRating = this.GetNewRatingModelAdd();
             await this._factory.LoginAsUser(this._httpClient);
-            var newRating = this.NewRating();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/Rating/creation", newRating);
@@ -160,8 +163,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         public async Task AddRating_NoLoggedUser_ShouldReturn_Unauthorized()
         {
             // Arrange
+            var newRating = this.GetNewRatingModelAdd();
             this._factory.Logout(this._httpClient);
-            var newRating = this.NewRating();
 
             // Act
             var response = await this._httpClient.PostAsJsonAsync("/Rating/creation", newRating);
@@ -175,23 +178,14 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRatingsAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Rating/list");
-            var ratings = await responseAll.Content.ReadFromJsonAsync<List<RatingModel>>();
-            var ratingToUpdate = ratings[0];
-            var ratingModelUpdate = new RatingModelUpdate()
-            {
-                FitchRating = ratingToUpdate.FitchRating,
-                MoodysRating = ratingToUpdate.MoodysRating,
-                SandPRating = ratingToUpdate.SandPRating,
-                OrderNumber = ratingToUpdate.OrderNumber
-            };
+            var ratingToUpdate = this.GetFirstRecordInTable();
+            var ratingModelUpdate = this.GetRatingModelToUpdate(ratingToUpdate);
             ratingModelUpdate.FitchRating = "UpdatedFitch";
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/Rating/update/{ratingToUpdate.Id}", ratingModelUpdate);
-            var responseUpdated = await this._httpClient.GetAsync($"/Rating/display/{ratingToUpdate.Id}");
-            var ratingUpdated = await responseUpdated.Content.ReadFromJsonAsync<RatingModel>();
+            var ratingUpdated = this.GetRecordById(ratingToUpdate.Id);
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
@@ -204,18 +198,11 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRatingsAsync();
-            await this._factory.LoginAsUser(this._httpClient);
             var responseAll = await this._httpClient.GetAsync("/Rating/list");
-            var ratings = await responseAll.Content.ReadFromJsonAsync<List<RatingModel>>();
-            var ratingToUpdate = ratings[0];
-            var ratingModelUpdate = new RatingModelUpdate()
-            {
-                FitchRating = ratingToUpdate.FitchRating,
-                MoodysRating = ratingToUpdate.MoodysRating,
-                SandPRating = ratingToUpdate.SandPRating,
-                OrderNumber = ratingToUpdate.OrderNumber
-            };
+            var ratingToUpdate = this.GetFirstRecordInTable();
+            var ratingModelUpdate = this.GetRatingModelToUpdate(ratingToUpdate);
             ratingModelUpdate.FitchRating = "Updated Fitch";
+            await this._factory.LoginAsUser(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/Rating/update/{ratingToUpdate.Id}", ratingModelUpdate);
@@ -229,17 +216,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRatingsAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Rating/list");
-            var ratings = await responseAll.Content.ReadFromJsonAsync<List<RatingModel>>();
-            var ratingToUpdate = ratings[0];
-            var ratingModelUpdate = new RatingModelUpdate()
-            {
-                FitchRating = ratingToUpdate.FitchRating,
-                MoodysRating = ratingToUpdate.MoodysRating,
-                SandPRating = ratingToUpdate.SandPRating,
-                OrderNumber = ratingToUpdate.OrderNumber
-            };
+            var ratingToUpdate = this.GetFirstRecordInTable();
+            var ratingModelUpdate = this.GetRatingModelToUpdate(ratingToUpdate);
             ratingModelUpdate.FitchRating = "Updated Fitch";
             this._factory.Logout(this._httpClient);
 
@@ -255,19 +233,11 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRatingsAsync();
-            await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Rating/list");
-            var ratings = await responseAll.Content.ReadFromJsonAsync<List<RatingModel>>();
-            var ratingToUpdate = ratings[0];
-            var ratingModelUpdate = new RatingModelUpdate()
-            {
-                FitchRating = ratingToUpdate.FitchRating,
-                MoodysRating = ratingToUpdate.MoodysRating,
-                SandPRating = ratingToUpdate.SandPRating,
-                OrderNumber = ratingToUpdate.OrderNumber
-            };
+            var ratingToUpdate = this.GetFirstRecordInTable();
+            var ratingModelUpdate = this.GetRatingModelToUpdate(ratingToUpdate);
             ratingModelUpdate.FitchRating = "UpdatedFitch";
-            var nonExistingRatingId = ratings.Max(r => r.Id) + 1;
+            var nonExistingRatingId = -1;
+            await this._factory.LoginAsAdmin(this._httpClient);
 
             // Act
             var response = await this._httpClient.PutAsJsonAsync($"/Rating/update/{nonExistingRatingId}", ratingModelUpdate);
@@ -281,10 +251,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRatingsAsync();
+            var ratingToDeleteId = this.GetFirstRecordInTable().Id;
             await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Rating/list");
-            var ratings = await responseAll.Content.ReadFromJsonAsync<List<RatingModel>>();
-            var ratingToDeleteId = ratings[0].Id;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/Rating/deletion/{ratingToDeleteId}");
@@ -299,10 +267,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRatingsAsync();
+            var ratingToDeleteId = this.GetFirstRecordInTable().Id;
             await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Rating/list");
-            var ratings = await responseAll.Content.ReadFromJsonAsync<List<RatingModel>>();
-            var ratingToDeleteId = ratings[0].Id;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/Rating/deletion/{ratingToDeleteId}");
@@ -316,10 +282,7 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRatingsAsync();
-            await this._factory.LoginAsUser(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Rating/list");
-            var ratings = await responseAll.Content.ReadFromJsonAsync<List<RatingModel>>();
-            var ratingToDeleteId = ratings[0].Id;
+            var ratingToDeleteId = this.GetFirstRecordInTable().Id;
             this._factory.Logout(this._httpClient);
 
             // Act
@@ -334,10 +297,8 @@ namespace P7CreateTestApi.Test.IntegrationTests
         {
             // Arrange
             await this.SeedSampleRatingsAsync();
+            var nonExistingRatingId = -1;
             await this._factory.LoginAsAdmin(this._httpClient);
-            var responseAll = await this._httpClient.GetAsync("/Rating/list");
-            var ratings = await responseAll.Content.ReadFromJsonAsync<List<RatingModel>>();
-            var nonExistingRatingId = ratings.Max(r => r.Id) + 1;
 
             // Act
             var response = await this._httpClient.DeleteAsync($"/Rating/deletion/{nonExistingRatingId}");
