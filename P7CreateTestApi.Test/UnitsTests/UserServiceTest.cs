@@ -42,6 +42,7 @@ namespace P7CreateTestApi.Test.UnitsTests
         {
             // Arrange
             _mockRepository.Setup(repo => repo.GetAll()).Returns(GetUser());
+            _mockUserManager.Setup(userManager => userManager.GetRolesAsync(It.IsAny<User>())).ReturnsAsync(new string[] { "User" });
 
             // Act
             var result = _userService.GetAll();
@@ -59,6 +60,7 @@ namespace P7CreateTestApi.Test.UnitsTests
         {
             // Arrange
             _mockRepository.Setup(repo => repo.GetById("1")).Returns(GetUser()[0]);
+            _mockUserManager.Setup(userManager => userManager.GetRolesAsync(It.IsAny<User>())).ReturnsAsync(new string[] { "User" });
 
             // Act
             var result = _userService.GetById("1");
@@ -70,7 +72,7 @@ namespace P7CreateTestApi.Test.UnitsTests
         }
 
         [Fact]
-        public async Task Add_ShouldCall_RepositoryAdd()
+        public async Task Add_ShouldCall_UserManagerCreateAndAddRole()
         {
             // Arrange
             var newUserModel = new UserModelAdd { Email = "usernew@findexium.com", UserName = "UserNew", FullName = "UserNewFullName", Password = "UserNew123@" }; 
@@ -106,6 +108,7 @@ namespace P7CreateTestApi.Test.UnitsTests
             // Arrange
             _mockRepository.Setup(repo => repo.GetById("1")).Returns(GetUser()[0]);
             _mockRepository.Setup(repo => repo.Remove(It.IsAny<User>()));
+            _mockUserManager.Setup(userManager => userManager.GetRolesAsync(It.IsAny<User>())).ReturnsAsync(new string[] { "User" });
 
             // Act
             var userModel = _userService.GetById("1");

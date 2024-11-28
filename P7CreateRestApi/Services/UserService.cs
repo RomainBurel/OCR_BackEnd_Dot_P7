@@ -104,12 +104,14 @@ namespace P7CreateRestApi.Services
 
         private UserModel GetModelFromData(User user)
         {
+            var roles = _userManager.GetRolesAsync(user).GetAwaiter().GetResult();
             return new UserModel()
             {
                 Id = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
-                FullName = user.FullName
+                FullName = user.FullName,
+                Roles = roles.ToList()
             };
         }
 
