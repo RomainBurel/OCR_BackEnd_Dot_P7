@@ -6,12 +6,14 @@ namespace P7CreateRestApi.Services
     {
         public IEnumerable<CurvePointModel> GetAll();
 
-        public CurvePointModel GetById(int id);
+        public CurvePointModel? GetById(int id);
+
+        public bool Exists(int id);
 
         public void Add(CurvePointModelAdd modelAdd);
 
-        public void Update(CurvePointModel model, CurvePointModelUpdate modelUpdate);
+        public void Update(int id, CurvePointModelUpdate modelUpdate);
 
-        public void Delete(CurvePointModel model);
+        public void Delete(int id);
     }
 }

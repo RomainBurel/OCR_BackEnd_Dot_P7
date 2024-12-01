@@ -18,9 +18,15 @@ namespace P7CreateRestApi.Services
             return this._ruleNameRepository.GetAll().Select(r => this.GetModelFromData(r));
         }
 
-        public RuleNameModel GetById(int id)
+        public RuleNameModel? GetById(int id)
         {
-            return this.GetModelFromData(this._ruleNameRepository.GetById(id));
+            var ruleName = this._ruleNameRepository.GetById(id);
+            return ruleName != null ? this.GetModelFromData(ruleName) : null;
+        }
+
+        public bool Exists(int id)
+        {
+            return this._ruleNameRepository.Exists(id);
         }
 
         public void Add(RuleNameModelAdd modelAdd)
@@ -28,14 +34,14 @@ namespace P7CreateRestApi.Services
             this._ruleNameRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(RuleNameModel model)
+        public void Update(int id, RuleNameModelUpdate modelUpdate)
         {
-            this._ruleNameRepository.Update(this.GetDataFromModel(model));
+            this._ruleNameRepository.Update(this.GetDataFromModelUpdate(id, modelUpdate));
         }
 
-        public void Delete(RuleNameModel model)
+        public void Delete(int id)
         {
-            this._ruleNameRepository.Remove(this.GetDataFromModel(model));
+            this._ruleNameRepository.Remove(this._ruleNameRepository.GetById(id));
         }
 
         private RuleNameModel GetModelFromData(RuleName ruleName)
@@ -65,18 +71,16 @@ namespace P7CreateRestApi.Services
             };
         }
 
-        private RuleName GetDataFromModel(RuleNameModel model)
+        private RuleName GetDataFromModelUpdate(int id, RuleNameModelUpdate modelUpdate)
         {
-            return new RuleName()
-            {
-                Id = model.Id,
-                Name = model.Name,
-                Description = model.Description,
-                Json = model.Json,
-                Template = model.Template,
-                SqlStr = model.SqlStr,
-                SqlPart = model.SqlPart
-            };
+            var ruleName = this._ruleNameRepository.GetById(id);
+            ruleName.Name = modelUpdate.Name;
+            ruleName.Description = modelUpdate.Description;
+            ruleName.Json = modelUpdate.Json;
+            ruleName.Template = modelUpdate.Template;
+            ruleName.SqlStr = modelUpdate.SqlStr;
+            ruleName.SqlPart = modelUpdate.SqlPart;
+            return ruleName;
         }
     }
 }

@@ -63,14 +63,13 @@ namespace Dot.Net.WebApi.Controllers
         {
             _logger.LogInformation("Trade update requested");
 
-            var existingTradeModel = _tradeService.GetById(tradeId);
-            if (existingTradeModel == null)
+            if (!this._tradeService.Exists(tradeId))
             {
                 _logger.LogWarning("Trade with id {tradeId} not found for update", tradeModelUpdate);
                 return NotFound($"Trade with id {tradeId} not found for update");
             }
 
-            _tradeService.Update(existingTradeModel, tradeModelUpdate);
+            _tradeService.Update(tradeId, tradeModelUpdate);
             _logger.LogInformation("Trade update successfull");
             return Ok();
         }
@@ -82,14 +81,13 @@ namespace Dot.Net.WebApi.Controllers
         {
             _logger.LogInformation("Trade delete requested");
 
-            var tradeModel = _tradeService.GetById(tradeId);
-            if (tradeModel == null)
+            if (!this._tradeService.Exists(tradeId))
             {
                 _logger.LogWarning("Trade with id {tradeId} not found for deletion", tradeId);
                 return NotFound($"Trade with id {tradeId} not found for deletion");
             }
 
-            _tradeService.Delete(tradeModel);
+            _tradeService.Delete(tradeId);
             _logger.LogInformation("Trade delete successfull");
             return Ok();
         }

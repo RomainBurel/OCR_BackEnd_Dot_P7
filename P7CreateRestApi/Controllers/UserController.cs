@@ -29,7 +29,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpGet]
         [Route("display/{userId}")]
-        public IActionResult GetUserById(int userId)
+        public IActionResult GetUserById(string userId)
         {
             _logger.LogInformation("User with id {userId} requested", userId);
             var user = this._userService.GetById(userId);
@@ -59,18 +59,17 @@ namespace Dot.Net.WebApi.Controllers
         [HttpPut]
         [Route("update/{userId}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult UpdateUser(int userId, [FromBody] UserModel userModel)
+        public IActionResult UpdateUser(string userId, [FromBody] UserModelUpdate userModelUpdate)
         {
             _logger.LogInformation("User update requested");
 
-            var existingUserModel = _userService.GetById(userId);
-            if (existingUserModel == null)
+            if (!this._userService.Exists(userId))
             {
-                _logger.LogWarning("User with id {userId} not found for update", userModel);
+                _logger.LogWarning("User with id {userId} not found for update", userModelUpdate);
                 return NotFound($"User with id {userId} not found for update");
             }
 
-            _userService.Update(userModel);
+            _userService.Update(userId, userModelUpdate);
             _logger.LogInformation("User update successfull");
             return Ok();
         }
@@ -78,18 +77,17 @@ namespace Dot.Net.WebApi.Controllers
         [HttpDelete]
         [Route("deletion/{userId}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult DeleteUser(int userId)
+        public IActionResult DeleteUser(string userId)
         {
             _logger.LogInformation("User delete requested");
 
-            var userModel = _userService.GetById(userId);
-            if (userModel == null)
+            if (!this._userService.Exists(userId))
             {
                 _logger.LogWarning("User with id {userId} not found for deletion", userId);
                 return NotFound($"User with id {userId} not found for deletion");
             }
 
-            _userService.Delete(userModel);
+            _userService.Delete(userId);
             _logger.LogInformation("User delete successfull");
             return Ok();
         }

@@ -18,9 +18,15 @@ namespace P7CreateRestApi.Services
             return this._curvePointRepository.GetAll().Select(b => this.GetModelFromData(b));
         }
 
-        public CurvePointModel GetById(int id)
+        public CurvePointModel? GetById(int id)
         {
-            return this.GetModelFromData(this._curvePointRepository.GetById(id));
+            var curvePoint = this._curvePointRepository.GetById(id);
+            return curvePoint != null ? this.GetModelFromData(curvePoint) : null;
+        }
+
+        public bool Exists(int id)
+        {
+            return this._curvePointRepository.Exists(id);
         }
 
         public void Add(CurvePointModelAdd modelAdd)
@@ -28,14 +34,14 @@ namespace P7CreateRestApi.Services
             this._curvePointRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(CurvePointModel model, CurvePointModelUpdate modelUpdate)
+        public void Update(int id, CurvePointModelUpdate modelUpdate)
         {
-            this._curvePointRepository.Update(this.GetDataFromModelUpdate(model, modelUpdate));
+            this._curvePointRepository.Update(this.GetDataFromModelUpdate(id, modelUpdate));
         }
 
-        public void Delete(CurvePointModel model)
+        public void Delete(int id)
         {
-            this._curvePointRepository.Remove(this.GetDataFromModel(model));
+            this._curvePointRepository.Remove(this._curvePointRepository.GetById(id));
         }
 
         private CurvePointModel GetModelFromData(CurvePoint curvePoint)
@@ -63,27 +69,14 @@ namespace P7CreateRestApi.Services
             };
         }
 
-        private CurvePoint GetDataFromModelUpdate(CurvePointModel model, CurvePointModelUpdate modelUpdate)
+        private CurvePoint GetDataFromModelUpdate(int id, CurvePointModelUpdate modelUpdate)
         {
-            var curvePoint = this.GetDataFromModel(model);
+            var curvePoint = this._curvePointRepository.GetById(id);
             curvePoint.CurveId = modelUpdate.CurveId;
             curvePoint.AsOfDate = modelUpdate.AsOfDate;
             curvePoint.Term = modelUpdate.Term;
             curvePoint.CurvePointValue = modelUpdate.CurvePointValue;
             return curvePoint;
-        }
-
-        private CurvePoint GetDataFromModel(CurvePointModel model)
-        {
-            return new CurvePoint()
-            {
-                Id = model.Id,
-                CurveId = model.CurveId,
-                AsOfDate = model.AsOfDate,
-                Term = model.Term,
-                CurvePointValue = model.CurvePointValue,
-                CreationDate = model.CreationDate
-            };
         }
     }
 }

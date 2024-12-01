@@ -44,9 +44,9 @@ namespace Dot.Net.WebApi.Controllers
             return Ok(ruleName);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("creation")]
-        [Authorize(Roles = "Admin")]
         public IActionResult AddRuleName([FromBody] RuleNameModelAdd ruleNameModel)
         {
             _logger.LogInformation("RuleName add requested");
@@ -56,40 +56,38 @@ namespace Dot.Net.WebApi.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         [Route("update/{ruleNameId}")]
-        [Authorize(Roles = "Admin")]
-        public IActionResult UpdateRuleName(int ruleNameId, [FromBody] RuleNameModel ruleNameModel)
+        public IActionResult UpdateRuleName(int ruleNameId, [FromBody] RuleNameModelUpdate ruleNameModelUpdate)
         {
             _logger.LogInformation("RuleName update requested");
 
-            var existingRuleNameModel = _ruleNameService.GetById(ruleNameId);
-            if (existingRuleNameModel == null)
+            if (!this._ruleNameService.Exists(ruleNameId))
             {
-                _logger.LogWarning("RuleName with id {ruleNameId} not found for update", ruleNameModel);
+                _logger.LogWarning("RuleName with id {ruleNameId} not found for update", ruleNameModelUpdate);
                 return NotFound($"RuleName with id {ruleNameId} not found for update");
             }
 
-            _ruleNameService.Update(ruleNameModel);
+            _ruleNameService.Update(ruleNameId, ruleNameModelUpdate);
             _logger.LogInformation("RuleName update successfull");
             return Ok();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         [Route("deletion/{ruleNameId}")]
-        [Authorize(Roles = "Admin")]
         public IActionResult DeleteRuleName(int ruleNameId)
         {
             _logger.LogInformation("RuleName delete requested");
 
-            var ruleNameModel = _ruleNameService.GetById(ruleNameId);
-            if (ruleNameModel == null)
+            if (!this._ruleNameService.Exists(ruleNameId))
             {
                 _logger.LogWarning("RuleName with id {ruleNameId} not found for deletion", ruleNameId);
                 return NotFound($"RuleName with id {ruleNameId} not found for deletion");
             }
 
-            _ruleNameService.Delete(ruleNameModel);
+            _ruleNameService.Delete(ruleNameId);
             _logger.LogInformation("RuleName delete successfull");
             return Ok();
         }

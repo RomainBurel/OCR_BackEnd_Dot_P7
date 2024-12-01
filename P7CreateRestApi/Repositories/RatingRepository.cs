@@ -1,11 +1,11 @@
-﻿using Dot.Net.WebApi.Domain;
-using Microsoft.EntityFrameworkCore;
+﻿using Dot.Net.WebApi.Data;
+using Dot.Net.WebApi.Domain;
 
 namespace P7CreateRestApi.Repositories
 {
     public class RatingRepository : GenericRepository<Rating>, IRatingRepository
     {
-        public RatingRepository(DbContext context) : base(context)
+        public RatingRepository(LocalDbContext context) : base(context)
         {
         }
     }

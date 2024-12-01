@@ -18,9 +18,15 @@ namespace P7CreateRestApi.Services
             return this._ratingRepository.GetAll().Select(r => this.GetModelFromData(r));
         }
 
-        public RatingModel GetById(int id)
+        public RatingModel? GetById(int id)
         {
-            return this.GetModelFromData(this._ratingRepository.GetById(id));
+            var rating = this._ratingRepository.GetById(id);
+            return rating != null ? this.GetModelFromData(rating) : null;
+        }
+
+        public bool Exists(int id)
+        {
+            return this._ratingRepository.Exists(id);
         }
 
         public void Add(RatingModelAdd modelAdd)
@@ -28,14 +34,14 @@ namespace P7CreateRestApi.Services
             this._ratingRepository.Add(this.GetDataFromModelAdd(modelAdd));
         }
 
-        public void Update(RatingModel model)
+        public void Update(int id, RatingModelUpdate modelUpdate)
         {
-            this._ratingRepository.Update(this.GetDataFromModel(model));
+            this._ratingRepository.Update(this.GetDataFromModelUpdate(id, modelUpdate));
         }
 
-        public void Delete(RatingModel model)
+        public void Delete(int id)
         {
-            this._ratingRepository.Remove(this.GetDataFromModel(model));
+            this._ratingRepository.Remove(this._ratingRepository.GetById(id));
         }
 
         private RatingModel GetModelFromData(Rating rating)
@@ -61,16 +67,14 @@ namespace P7CreateRestApi.Services
             };
         }
 
-        private Rating GetDataFromModel(RatingModel model)
+        private Rating GetDataFromModelUpdate(int id, RatingModelUpdate modelUpdate)
         {
-            return new Rating()
-            {
-                Id = model.Id,
-                MoodysRating = model.MoodysRating,
-                SandPRating = model.SandPRating,
-                FitchRating = model.FitchRating,
-                OrderNumber = model.OrderNumber
-            };
+            var ratingModel = this._ratingRepository.GetById(id);
+            ratingModel.MoodysRating = modelUpdate.MoodysRating;
+            ratingModel.SandPRating = modelUpdate.SandPRating;
+            ratingModel.FitchRating = modelUpdate.FitchRating;
+            ratingModel.OrderNumber = modelUpdate.OrderNumber;
+            return ratingModel;
         }
     }
 }

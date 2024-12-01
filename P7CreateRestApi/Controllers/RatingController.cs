@@ -59,18 +59,17 @@ namespace Dot.Net.WebApi.Controllers
         [HttpPut]
         [Route("update/{ratingId}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult UpdateRating(int ratingId, [FromBody] RatingModel ratingModel)
+        public IActionResult UpdateRating(int ratingId, [FromBody] RatingModelUpdate ratingModelUpdate)
         {
             _logger.LogInformation("Rating update requested");
 
-            var existingRatingModel = _ratingService.GetById(ratingId);
-            if (existingRatingModel == null)
+            if (!this._ratingService.Exists(ratingId))
             {
-                _logger.LogWarning("Rating with id {ratingId} not found for update", ratingModel);
+                _logger.LogWarning("Rating with id {ratingId} not found for update", ratingModelUpdate);
                 return NotFound($"Rating with id {ratingId} not found for update");
             }
 
-            _ratingService.Update(ratingModel);
+            _ratingService.Update(ratingId, ratingModelUpdate);
             _logger.LogInformation("Rating update successfull");
             return Ok();
         }
@@ -82,14 +81,13 @@ namespace Dot.Net.WebApi.Controllers
         {
             _logger.LogInformation("Rating delete requested");
 
-            var ratingModel = _ratingService.GetById(ratingId);
-            if (ratingModel == null)
+            if (!this._ratingService.Exists(ratingId))
             {
                 _logger.LogWarning("Rating with id {ratingId} not found for deletion", ratingId);
                 return NotFound($"Rating with id {ratingId} not found for deletion");
             }
 
-            _ratingService.Delete(ratingModel);
+            _ratingService.Delete(ratingId);
             _logger.LogInformation("Rating delete successfull");
             return Ok();
         }

@@ -1,11 +1,11 @@
-﻿using Dot.Net.WebApi.Domain;
-using Microsoft.EntityFrameworkCore;
+﻿using Dot.Net.WebApi.Data;
+using Dot.Net.WebApi.Domain;
 
 namespace P7CreateRestApi.Repositories
 {
     public class CurvePointRepository : GenericRepository<CurvePoint>, ICurvePointRepository
     {
-        public CurvePointRepository(DbContext context) : base(context)
+        public CurvePointRepository(LocalDbContext context) : base(context)
         {
         }
     }

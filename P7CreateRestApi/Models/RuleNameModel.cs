@@ -4,19 +4,18 @@ namespace P7CreateRestApi.Models
 {
     public class RuleNameModel
     {
-        [Required]
         public int Id { get; set; }
-        [Required]
-        public string Name { get; set; } = string.Empty;
-        [Required]
-        public string Description { get; set; } = string.Empty;
-        [Required]
-        public string Json { get; set; } = string.Empty;
-        [Required]
-        public string Template { get; set; } = string.Empty;
-        [Required]
-        public string SqlStr { get; set; } = string.Empty;
-        [Required]
-        public string SqlPart { get; set; } = string.Empty;
+
+        public string Name { get; set; }
+
+        public string Description { get; set; }
+
+        public string Json { get; set; }
+
+        public string Template { get; set; }
+
+        public string SqlStr { get; set; }
+
+        public string SqlPart { get; set; }
     }
 }

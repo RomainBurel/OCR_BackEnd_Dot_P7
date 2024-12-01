@@ -6,12 +6,14 @@ namespace P7CreateRestApi.Services
     {
         public IEnumerable<BidListModel> GetAll();
 
-        public BidListModel GetById(int id);
+        public BidListModel? GetById(int id);
+
+        public bool Exists(int id);
 
         public void Add(BidListModelAdd modelAdd);
 
-        public void Update(BidListModel model, BidListModelUpdate modelUpdate);
+        public void Update(int id, BidListModelUpdate modelUpdate);
 
-        public void Delete(BidListModel model);
+        public void Delete(int id);
     }
 }

@@ -6,12 +6,14 @@ namespace P7CreateRestApi.Services
     {
         public IEnumerable<TradeModel> GetAll();
 
-        public TradeModel GetById(int id);
+        public TradeModel? GetById(int id);
+
+        public bool Exists(int id);
 
         public void Add(TradeModelAdd modelAdd);
 
-        public void Update(TradeModel model, TradeModelUpdate modelUpdate);
+        public void Update(int id, TradeModelUpdate modelUpdate);
 
-        public void Delete(TradeModel model);
+        public void Delete(int id);
     }
 }

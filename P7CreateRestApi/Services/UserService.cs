@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using P7CreateRestApi.Models;
 using P7CreateRestApi.Repositories;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -13,12 +14,14 @@ namespace P7CreateRestApi.Services
     {
         private IUserRepository _userRepository;
         private UserManager<User> _userManager;
+        private RoleManager<IdentityRole> _roleManager;
         private IConfiguration _configuration;
 
-        public UserService(IUserRepository userRepository, UserManager<User> userManager, IConfiguration configuration)
+        public UserService(IUserRepository userRepository, UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             this._userRepository = userRepository;
             this._userManager = userManager;
+            this._roleManager = roleManager;
             _configuration = configuration;
         }
 
@@ -27,24 +30,38 @@ namespace P7CreateRestApi.Services
             return this._userRepository.GetAll().Select(r => this.GetModelFromData(r));
         }
 
-        public UserModel GetById(int id)
+        public UserModel? GetById(string id)
         {
-            return this.GetModelFromData(this._userRepository.GetById(id));
+            var user = this._userRepository.GetById(id);
+            return user != null ? this.GetModelFromData(user) : null;
+        }
+
+        public bool Exists(string id)
+        {
+            return this._userRepository.Exists(id);
         }
 
         public void Add(UserModelAdd modelAdd)
         {
-            this._userRepository.Add(this.GetDataFromModelAdd(modelAdd));
+            var user = this.GetDataFromModelAdd(modelAdd);
+            var userResult = this._userManager.CreateAsync(user, modelAdd.Password).GetAwaiter().GetResult();
+
+            if (!userResult.Succeeded)
+            {
+                throw new Exception("Failed to create '" + modelAdd.UserName + "' user");
+            }
+
+            this._userManager.AddToRoleAsync(user, "User").GetAwaiter().GetResult();
         }
 
-        public void Update(UserModel model)
+        public void Update(string id, UserModelUpdate modelUpdate)
         {
-            this._userRepository.Update(this.GetDataFromModel(model));
+            this._userRepository.Update(this.GetDataFromModelUpdate(id, modelUpdate));
         }
 
-        public void Delete(UserModel model)
+        public void Delete(string id)
         {
-            this._userRepository.Remove(this.GetDataFromModel(model));
+            this._userRepository.Remove(this._userRepository.GetById(id));
         }
 
         public async Task<JwtSecurityToken> GetUserLoginToken(LoginModel loginModel)
@@ -52,21 +69,26 @@ namespace P7CreateRestApi.Services
             var user = await _userManager.FindByEmailAsync(loginModel.Email);
             if (user != null && await _userManager.CheckPasswordAsync(user, loginModel.Password))
             {
-                return this.GenerateJwtToken(user);
+                var roles = await _userManager.GetRolesAsync(user);
+                return this.GenerateJwtToken(user, roles);
             }
 
             return null;
         }
 
-        private JwtSecurityToken GenerateJwtToken(User user)
+        private JwtSecurityToken GenerateJwtToken(User user, IList<string> roles)
         {
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Role, user.Role) // Role in Token
             };
+
+            foreach (var userRole in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, userRole));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -82,12 +104,14 @@ namespace P7CreateRestApi.Services
 
         private UserModel GetModelFromData(User user)
         {
+            var roles = _userManager.GetRolesAsync(user).GetAwaiter().GetResult();
             return new UserModel()
             {
                 Id = user.Id,
                 UserName = user.UserName,
+                Email = user.Email,
                 FullName = user.FullName,
-                Role = user.Role
+                Roles = roles.ToList()
             };
         }
 
@@ -96,20 +120,18 @@ namespace P7CreateRestApi.Services
             return new User()
             {
                 UserName = model.UserName,
+                Email = model.Email,
                 FullName = model.FullName,
-                Role = model.Role
             };
         }
 
-        private User GetDataFromModel(UserModel model)
+        private User GetDataFromModelUpdate(string id, UserModelUpdate modelUpdate)
         {
-            return new User()
-            {
-                Id = model.Id,
-                UserName = model.UserName,
-                FullName = model.FullName,
-                Role = model.Role
-            };
+            var user = this._userRepository.GetById(id);
+            user.UserName = modelUpdate.UserName;
+            user.Email = modelUpdate.Email;
+            user.FullName = modelUpdate.FullName;
+            return user;
         }
     }
 }

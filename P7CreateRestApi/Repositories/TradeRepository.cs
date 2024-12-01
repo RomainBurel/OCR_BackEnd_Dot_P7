@@ -1,11 +1,11 @@
-﻿using Dot.Net.WebApi.Domain;
-using Microsoft.EntityFrameworkCore;
+﻿using Dot.Net.WebApi.Data;
+using Dot.Net.WebApi.Domain;
 
 namespace P7CreateRestApi.Repositories
 {
     public class TradeRepository : GenericRepository<Trade>, ITradeRepository
     {
-        public TradeRepository(DbContext context) : base(context)
+        public TradeRepository(LocalDbContext context) : base(context)
         {
         }
     }

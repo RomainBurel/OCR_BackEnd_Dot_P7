@@ -63,14 +63,13 @@ namespace Dot.Net.WebApi.Controllers
         {
             _logger.LogInformation("CurvePoint update requested");
 
-            var existingCurvePointModel = _curvePointService.GetById(curvePointId);
-            if (existingCurvePointModel == null)
+            if (!this._curvePointService.Exists(curvePointId))
             {
                 _logger.LogWarning("CurvePoint with id {curvePointId} not found for update", curvePointModelUpdate);
                 return NotFound($"CurvePoint with id {curvePointId} not found for update");
             }
 
-            _curvePointService.Update(existingCurvePointModel, curvePointModelUpdate);
+            _curvePointService.Update(curvePointId, curvePointModelUpdate);
             _logger.LogInformation("CurvePoint update successfull");
             return Ok();
         }
@@ -82,14 +81,13 @@ namespace Dot.Net.WebApi.Controllers
         {
             _logger.LogInformation("CurvePoint delete requested");
 
-            var curvePointModel = _curvePointService.GetById(curvePointId);
-            if (curvePointModel == null)
+            if (!this._curvePointService.Exists(curvePointId))
             {
                 _logger.LogWarning("CurvePoint with id {curvePointId} not found for deletion", curvePointId);
                 return NotFound($"CurvePoint with id {curvePointId} not found for deletion");
             }
 
-            _curvePointService.Delete(curvePointModel);
+            _curvePointService.Delete(curvePointId);
             _logger.LogInformation("CurvePoint delete successfull");
             return Ok();
         }
