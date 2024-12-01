@@ -5,7 +5,7 @@ namespace P7CreateRestApi.Models
     public class CurvePointModelAdd
     {
         [Required(ErrorMessage = "CurveId is required.")]
-        [Range(1, int.MaxValue, ErrorMessage = "CurveId must be a positive integer.")]
+        [Range(1, byte.MaxValue, ErrorMessage = "CurveId must be a positive integer.")]
         public byte? CurveId { get; set; }
 
         [DataType(DataType.Date, ErrorMessage = "Invalid date format.")]
